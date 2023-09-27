@@ -3,3 +3,4 @@
 - [x] 控制motors
 - [x] 驱动mpu6050
 - [x] 驱动hmc5883l
+- [x] 驱动spl06

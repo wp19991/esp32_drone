@@ -1,7 +1,8 @@
+#include "hmc5883l.h"
 #include "i2cdev.h"
 #include "motors.h"
 #include "mpu6050.h"
-#include "hmc5883l.h"
+#include "spl06.h"
 
 #include "esp_log.h"
 
@@ -60,8 +61,10 @@ void app_main() {
   if (hmc5883lTestConnection() == true) {
     hmc5883lSetMode(QMC5883L_MODE_CONTINUOUS);  // 16bit 100Hz
     ESP_LOGI(TAG, "hmc5883l I2C connection [OK].\n");
-  } else {
-    ESP_LOGE(TAG, "hmc5883l I2C connection [FAIL].\n");
+  }
+
+  if (SPL06Init(I2C0_DEV)) {
+    ESP_LOGI(TAG, "SPL06 I2C connection [OK].\n");
   }
 
   int16_t axi16, ayi16, azi16;
