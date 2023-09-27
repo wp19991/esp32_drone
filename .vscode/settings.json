@@ -39,6 +39,7 @@
         "stdio.h": "c",
         "pm_esplane.h": "c",
         "stabilizer.h": "c",
-        "mpu6050.h": "c"
+        "mpu6050.h": "c",
+        "hmc5883l.h": "c"
     }
 }

@@ -1,6 +1,7 @@
 #include "i2cdev.h"
 #include "motors.h"
 #include "mpu6050.h"
+#include "hmc5883l.h"
 
 #include "esp_log.h"
 
@@ -16,11 +17,11 @@ void app_main() {
   i2cdevInit(I2C0_DEV);
   mpu6050Init(I2C0_DEV);
 
-//   if (mpu6050SelfTest() == true) {
-//     motorsSetRatio(0, 65535);
-//     vTaskDelay(500 / portTICK_PERIOD_MS);
-//     motorsSetRatio(0, 0);
-//   }
+  //   if (mpu6050SelfTest() == true) {
+  //     motorsSetRatio(0, 65535);
+  //     vTaskDelay(500 / portTICK_PERIOD_MS);
+  //     motorsSetRatio(0, 0);
+  //   }
   mpu6050Reset();
   vTaskDelay(50 / portTICK_PERIOD_MS);
   // Activate mpu6050
@@ -55,6 +56,14 @@ void app_main() {
   vTaskDelay(100 / portTICK_PERIOD_MS);
   motorsSetRatio(0, 0);
 
+  hmc5883lInit(I2C0_DEV);
+  if (hmc5883lTestConnection() == true) {
+    hmc5883lSetMode(QMC5883L_MODE_CONTINUOUS);  // 16bit 100Hz
+    ESP_LOGI(TAG, "hmc5883l I2C connection [OK].\n");
+  } else {
+    ESP_LOGE(TAG, "hmc5883l I2C connection [FAIL].\n");
+  }
+
   int16_t axi16, ayi16, azi16;
   int16_t gxi16, gyi16, gzi16;
   float axf, ayf, azf;
@@ -80,13 +89,17 @@ void app_main() {
     ESP_LOGI(TAG,
              "Iteration %u: axi16 = %d, ayi16 = %d, azi16 = %d, gxi16 = %d, "
              "gyi16 = %d, gzi16 = %d",
-              (unsigned int)scrap, axi16, ayi16, azi16, gxi16, gyi16, gzi16);
+             (unsigned int)scrap, axi16, ayi16, azi16, gxi16, gyi16, gzi16);
     ESP_LOGI(TAG,
              "Iteration %u: axf = %f, ayf = %f, azf = %f, gxf = %f, gyf = %f, "
              "gzf = %f",
-              (unsigned int)scrap, axf, ayf, azf, gxf, gyf, gzf);
-    if(ayi16<0){ ayi16=-ayi16;}
-    if(axi16<0){ axi16=-axi16;}
+             (unsigned int)scrap, axf, ayf, azf, gxf, gyf, gzf);
+    if (ayi16 < 0) {
+      ayi16 = -ayi16;
+    }
+    if (axi16 < 0) {
+      axi16 = -axi16;
+    }
     // if(azi16<0){ azi16=-azi16;}
     motorsSetRatio(0, ayi16);
     motorsSetRatio(1, axi16);
