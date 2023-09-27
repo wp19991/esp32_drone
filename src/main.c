@@ -3,6 +3,7 @@
 #include "motors.h"
 #include "mpu6050.h"
 #include "spl06.h"
+#include "ledseq.h"
 
 #include "esp_log.h"
 
@@ -14,6 +15,9 @@ void app_main() {
 
   motorsInit(15000);
   motorsTest();
+
+  ledseqInit();
+  ledseqTest();
 
   i2cdevInit(I2C0_DEV);
   mpu6050Init(I2C0_DEV);
