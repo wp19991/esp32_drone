@@ -1,9 +1,10 @@
 #include "hmc5883l.h"
 #include "i2cdev.h"
+#include "ledseq.h"
 #include "motors.h"
 #include "mpu6050.h"
+#include "pm_esplane.h"
 #include "spl06.h"
-#include "ledseq.h"
 
 #include "esp_log.h"
 
@@ -15,6 +16,8 @@ void app_main() {
 
   motorsInit(15000);
   motorsTest();
+
+  pmInit();
 
   ledseqInit();
   ledseqTest();
