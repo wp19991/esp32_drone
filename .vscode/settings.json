@@ -41,6 +41,18 @@
         "stabilizer.h": "c",
         "mpu6050.h": "c",
         "hmc5883l.h": "c",
-        "adc_esp32.h": "c"
+        "adc_esp32.h": "c",
+        "sensors_mpu6050_spl06.h": "c",
+        "i2cdev.h": "c",
+        "gpio.h": "c",
+        "task.h": "c",
+        "string.h": "c",
+        "freertos.h": "c",
+        "spl06.h": "c",
+        "usec_time.h": "c",
+        "esp_log.h": "c",
+        "filter.h": "c",
+        "sensfusion6.h": "c",
+        "imu.h": "c"
     }
 }

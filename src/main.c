@@ -5,12 +5,13 @@
 #include "mpu6050.h"
 #include "pm_esplane.h"
 #include "spl06.h"
+#include "system_int.h"
 
 #include "esp_log.h"
 
 static const char* TAG = "mpu6050_main";
 
-void app_main() {
+void test() {
   // 初始化日志系统
   esp_log_level_set(TAG, ESP_LOG_INFO);
 
@@ -25,11 +26,6 @@ void app_main() {
   i2cdevInit(I2C0_DEV);
   mpu6050Init(I2C0_DEV);
 
-  //   if (mpu6050SelfTest() == true) {
-  //     motorsSetRatio(0, 65535);
-  //     vTaskDelay(500 / portTICK_PERIOD_MS);
-  //     motorsSetRatio(0, 0);
-  //   }
   mpu6050Reset();
   vTaskDelay(50 / portTICK_PERIOD_MS);
   // Activate mpu6050
@@ -85,6 +81,54 @@ void app_main() {
   gRange = mpu6050GetFullScaleGyroDPL();
 
   // First values after startup can be read as zero. Scrap a couple to be sure.
+  for (scrap = 0; scrap < 10000; scrap++) {
+    mpu6050GetMotion6(&axi16, &ayi16, &azi16, &gxi16, &gyi16, &gzi16);
+    // First measurement
+    gxf = gxi16 * gRange;
+    gyf = gyi16 * gRange;
+    gzf = gzi16 * gRange;
+    axf = axi16 * aRange;
+    ayf = ayi16 * aRange;
+    azf = azi16 * aRange;
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    // 打印浮点数值
+    ESP_LOGI(TAG,
+             "Iteration %u: axi16 = %d, ayi16 = %d, azi16 = %d, gxi16 = %d, "
+             "gyi16 = %d, gzi16 = %d",
+             (unsigned int)scrap, axi16, ayi16, azi16, gxi16, gyi16, gzi16);
+    ESP_LOGI(TAG,
+             "Iteration %u: axf = %f, ayf = %f, azf = %f, gxf = %f, gyf = %f, "
+             "gzf = %f",
+             (unsigned int)scrap, axf, ayf, azf, gxf, gyf, gzf);
+    if (ayi16 < 0) {
+      ayi16 = -ayi16;
+    }
+    if (axi16 < 0) {
+      axi16 = -axi16;
+    }
+    // if(azi16<0){ azi16=-azi16;}
+    motorsSetRatio(0, ayi16);
+    motorsSetRatio(1, axi16);
+    // motorsSetRatio(2, azi16);
+  }
+  motorsSetRatio(0, 0);
+}
+
+void app_main() {
+  systemInit();
+  motorsTest();
+  ESP_LOGI(TAG, "systemInit [OK].\n");
+
+  int16_t axi16, ayi16, azi16;
+  int16_t gxi16, gyi16, gzi16;
+  float axf, ayf, azf;
+  float gxf, gyf, gzf;
+  float gRange, aRange;
+  uint32_t scrap;
+
+  aRange = mpu6050GetFullScaleAccelGPL();
+  gRange = mpu6050GetFullScaleGyroDPL();
+
   for (scrap = 0; scrap < 10000; scrap++) {
     mpu6050GetMotion6(&axi16, &ayi16, &azi16, &gxi16, &gyi16, &gzi16);
     // First measurement
