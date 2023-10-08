@@ -53,6 +53,9 @@
         "esp_log.h": "c",
         "filter.h": "c",
         "sensfusion6.h": "c",
-        "imu.h": "c"
+        "imu.h": "c",
+        "state_estimator.h": "c",
+        "drone_1.h": "c",
+        "system_int.h": "c"
     }
 }

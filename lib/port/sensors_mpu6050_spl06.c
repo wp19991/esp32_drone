@@ -83,7 +83,7 @@ static const char* TAG = "mpu6050_spl06";
 // Number of samples used in variance calculation. Changing this effects the threshold
 #define SENSORS_NBR_OF_BIAS_SAMPLES 1024 /* 计算方差的采样样本个数 */
 // Variance threshold to take zero bias for gyro
-#define GYRO_VARIANCE_BASE 5000  /* 陀螺仪零偏方差阈值 */
+#define GYRO_VARIANCE_BASE 50000000  /* 陀螺仪零偏方差阈值 */
 
 #define GYRO_VARIANCE_THRESHOLD_X (GYRO_VARIANCE_BASE)
 #define GYRO_VARIANCE_THRESHOLD_Y (GYRO_VARIANCE_BASE)
