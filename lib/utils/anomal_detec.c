@@ -1,10 +1,7 @@
 #include <math.h>
-#include "maths.h"
 #include "commander.h"
 #include "anomal_detec.h"
-//#include "remoter_ctrl.h"
 #include "stabilizer.h"
-//#include "module_mgt.h"
 
 #if defined(DETEC_ENABLED)
 

@@ -47,13 +47,10 @@
 
 #define LEDSEQ_CHARGE_CYCLE_TIME_500MA  1000
 #define LEDSEQ_CHARGE_CYCLE_TIME_MAX    500
-
-#define M2T(X) ((unsigned int)(X)/ portTICK_PERIOD_MS) //ms to tick
-
 //Led sequence action
 #define LEDSEQ_WAITMS(X) (X)
-#define LEDSEQ_STOP      -1
-#define LEDSEQ_LOOP      -2
+#define LEDSEQ_STOP      (-1)
+#define LEDSEQ_LOOP      (-2)
 //led序列
 typedef struct {
   bool value;

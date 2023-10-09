@@ -12,13 +12,10 @@
 #include <stdbool.h>
 
 #include "driver/ledc.h"
-// #include "py/mphal.h"
-// #include "py/obj.h"
+#include "config.h"
 #include "mpconfigboard.h"
 
 /******** 定义 ********/
-
-#define M2T(X) ((unsigned int)(X)/ portTICK_PERIOD_MS) //ms to tick
 
 // CF2 PWM波形在328kHz下滤波效果更好。在168kHz下，NCP702稳压器会受到影响。
 #define CONFIG_TARGET_PYDRONE_S2    1
@@ -141,7 +138,7 @@ bool pwm_timmer_init();
 /**
  * 初始化。将所有电机的比例设置为0%
  */
-void motorsInit(int freq_hz);
+void motorsInit(void);
 
 /**
  * 反初始化。恢复默认值

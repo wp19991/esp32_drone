@@ -1,7 +1,6 @@
 #include "state_estimator.h"
 #include "attitude_pid.h"
 #include "maths.h"
-#include "stabilizer.h"
 #include "sensfusion6.h"
 #include "axis.h"
 

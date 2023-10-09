@@ -20,6 +20,7 @@
  * led.c - LED handing functions
  */
 #include <stdbool.h>
+#include <soc/gpio_sig_map.h>
 
 /*FreeRtos includes*/
 #include "freertos/FreeRTOS.h"
@@ -72,7 +73,7 @@ bool ledTest(void)
 {
     ledSet(LED_GREEN, 1);
     vTaskDelay(M2T(250));
-	
+
     ledSet(LED_GREEN, 0);
     vTaskDelay(M2T(250));
     // LED test end
@@ -121,10 +122,12 @@ void ledSet(led_t led, bool value)
 void ledDeInit(void)
 {
 	ledClearAll();
-	
+
     for (int i = 0; i < LED_NUM; i++) {
-		esp_rom_gpio_pad_select_gpio(led_pin[i]);
-		esp_rom_gpio_connect_out_signal(led_pin[i], 256, false, false);
+        esp_rom_gpio_pad_select_gpio(led_pin[i]);
+        esp_rom_gpio_connect_out_signal(led_pin[i], SIG_GPIO_OUT_IDX, false, false);
+        // change gpio_pad_select_gpio(led_pin[i]);
+        // change gpio_matrix_out(led_pin[i], SIG_GPIO_OUT_IDX, false, false);
 		gpio_set_direction(led_pin[i], GPIO_MODE_INPUT);
     }
 

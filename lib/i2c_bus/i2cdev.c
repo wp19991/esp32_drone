@@ -4,11 +4,9 @@
  * i2cdev.c - 用于与I2C设备通信的函数
  */
 
-#include <stdint.h>
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
-#include "freertos/task.h"
 #include "freertos/queue.h"
 #include "i2cdev.h"
 #include "i2c_drv.h"
@@ -123,8 +121,8 @@ bool i2cdevReadReg16(I2C_Dev *dev, uint8_t devAddress, uint16_t memAddress, uint
     }
 
     uint8_t memAddress8[2];
-    memAddress8[0] = (uint8_t)((memAddress >> 8) & 0x00FF);
-    memAddress8[1] = (uint8_t)(memAddress & 0x00FF);
+    memAddress8[0] = (uint8_t) ((memAddress >> 8) & 0x00FF);
+    memAddress8[1] = (uint8_t) (memAddress & 0x00FF);
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (devAddress << 1) | I2C_MASTER_WRITE, I2C_MASTER_ACK_EN);
@@ -271,8 +269,8 @@ bool i2cdevWriteReg16(I2C_Dev *dev, uint8_t devAddress, uint16_t memAddress, uin
     }
 
     uint8_t memAddress8[2];
-    memAddress8[0] = (uint8_t)((memAddress >> 8) & 0x00FF);
-    memAddress8[1] = (uint8_t)(memAddress & 0x00FF);
+    memAddress8[0] = (uint8_t) ((memAddress >> 8) & 0x00FF);
+    memAddress8[1] = (uint8_t) (memAddress & 0x00FF);
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (devAddress << 1) | I2C_MASTER_WRITE, I2C_MASTER_ACK_EN);

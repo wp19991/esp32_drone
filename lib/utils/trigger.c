@@ -25,7 +25,6 @@
  */
 
 #include <stddef.h>
-#include <stdlib.h>
 #include "trigger.h"
 
 #include "config.h"

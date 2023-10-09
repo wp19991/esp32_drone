@@ -6,15 +6,11 @@
  * 函数还提供了初始化电机、测试电机、停止电机和获取电机PWM值等功能。
  */
 
-#include <string.h>
 
 #include "power_distribution.h"
-#include <stdio.h>
-#include <string.h>
 #include "num.h"
 #include "motors.h"
 #include "config.h"
-#include "mpconfigboard.h"
 
 #define TAG "PWR_DIST"
 
@@ -36,7 +32,7 @@ static struct {
 static uint32_t idleThrust = DEFAULT_IDLE_THRUST; // 电机空闲状态下的推力
 
 void powerDistributionInit(void) {
-    motorsInit(MOTORS_FREQ_HZ); // 初始化电机
+    motorsInit(); // 初始化电机
 }
 
 bool powerDistributionTest(void) {

@@ -2,28 +2,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <soc/gpio_sig_map.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 #include "driver/gpio.h"
 
-#include "sensors_mpu6050_spl06.h"
-
 #include "i2cdev.h"
 #include "mpu6050.h"
 #include "hmc5883l.h"
 #include "spl06.h"
-
+#include "sensors_mpu6050_spl06.h"
 #include "usec_time.h"
 #include "config.h"
 
-// #include "py/mphal.h"
-// #include "py/obj.h"
 #include "esp_log.h"
 #include "filter.h"
 #include "imu.h"
 #include "stabilizer_types.h"
 #include "sensfusion6.h"
+#include "mpconfigboard.h"
 
 static const char* TAG = "mpu6050_spl06";
 
@@ -83,7 +81,7 @@ static const char* TAG = "mpu6050_spl06";
 // Number of samples used in variance calculation. Changing this effects the threshold
 #define SENSORS_NBR_OF_BIAS_SAMPLES 1024 /* 计算方差的采样样本个数 */
 // Variance threshold to take zero bias for gyro
-#define GYRO_VARIANCE_BASE 50000000  /* 陀螺仪零偏方差阈值 */
+#define GYRO_VARIANCE_BASE 5000  /* 陀螺仪零偏方差阈值 */
 
 #define GYRO_VARIANCE_THRESHOLD_X (GYRO_VARIANCE_BASE)
 #define GYRO_VARIANCE_THRESHOLD_Y (GYRO_VARIANCE_BASE)
@@ -102,13 +100,13 @@ static uint8_t buffer[SENSORS_MPU6050_BUFF_LEN + SENSORS_MAG_BUFF_LEN + SENSORS_
 static lpf2pData accLpf[3];
 static lpf2pData gyroLpf[3];
 
-static SemaphoreHandle_t sensorsDataReady;
-static SemaphoreHandle_t dataReady;
+static xSemaphoreHandle sensorsDataReady;
+static xSemaphoreHandle dataReady;
 
-static QueueHandle_t accelerometerDataQueue;
-static QueueHandle_t gyroDataQueue;
-static QueueHandle_t magnetometerDataQueue;
-static QueueHandle_t barometerDataQueue;
+static xQueueHandle accelerometerDataQueue;
+static xQueueHandle gyroDataQueue;
+static xQueueHandle magnetometerDataQueue;
+static xQueueHandle barometerDataQueue;
 
 static volatile uint64_t imuIntTimestamp;
 static sensorData_t sensorData;
@@ -476,7 +474,6 @@ static bool sensorsFindBiasValue(BiasObj *bias)
             bias->bias.y = bias->mean.y;
             bias->bias.z = bias->mean.z;
             foundBias = true;
-            ESP_LOGE(TAG,"foundBias is true");
             bias->isBiasValueFound = true;
 			
 			isprintf = 0;
@@ -566,12 +563,6 @@ static bool processGyroBias(int16_t gx, int16_t gy, int16_t gz, Axis3f *gyroBias
     gyroBiasOut->y = gyroBiasRunning.bias.y;
     gyroBiasOut->z = gyroBiasRunning.bias.z;
 
-    // if(gyroBiasRunning.isBiasValueFound){
-    //     ESP_LOGE(TAG,"gyroBiasRunning.isBiasValueFound");
-    // }else{
-    //     ESP_LOGE(TAG,"gyroBiasRunning.isBiasValueFound false");
-    // }
-    
     return gyroBiasRunning.isBiasValueFound;
 }
 #endif
@@ -921,9 +912,10 @@ void sensorsMpu6050Spl06DeInit(void)
 	
 	gpio_isr_handler_remove(MICROPY_MPU_PIN_IRQ);
 	gpio_uninstall_isr_service();
-	esp_rom_gpio_pad_select_gpio(MICROPY_MPU_PIN_IRQ);
-    // esp_rom_gpio_pad_select_gpio
-	esp_rom_gpio_connect_out_signal(MICROPY_MPU_PIN_IRQ, 256, false, false);
+    esp_rom_gpio_pad_select_gpio(MICROPY_MPU_PIN_IRQ);
+    esp_rom_gpio_connect_out_signal(MICROPY_MPU_PIN_IRQ, SIG_GPIO_OUT_IDX, false, false);
+	// change gpio_pad_select_gpio(MICROPY_MPU_PIN_IRQ);
+	// change gpio_matrix_out(MICROPY_MPU_PIN_IRQ, SIG_GPIO_OUT_IDX, false, false);
 	gpio_set_direction(MICROPY_MPU_PIN_IRQ, GPIO_MODE_INPUT);
 	
 	if( sensors_handle != NULL )

@@ -7,9 +7,7 @@
 #include "freertos/task.h"
 #include "config.h"
 #include "i2cdev.h"
-#include "mpu6050.h"
 #include "hmc5883l.h"
-// #include "py/obj.h"
 #include "esp_log.h"
 
 #define TAG "HMC5883L"

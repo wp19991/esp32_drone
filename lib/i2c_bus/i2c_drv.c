@@ -12,14 +12,11 @@
  * 不妨一试...
  */
 
-#include <string.h>
+#include <soc/gpio_sig_map.h>
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
-
-// #include "py/obj.h"
 
 #include "i2c_drv.h"
 
@@ -30,6 +27,7 @@
 #define I2C_DEFAULT_DECK_CLOCK_SPEED                100000
 
 #include "esp_log.h"
+#include "mpconfigboard.h"
 
 static const char *TAG = "i2c_drv";
 
@@ -98,13 +96,15 @@ void i2cDrvDeInit(I2cDrv *i2c) {
         i2c_driver_delete(i2c->def->i2cPort);
 
         esp_rom_gpio_pad_select_gpio(i2c->def->gpioSDAPin);
-        // gpio_matrix_out(i2c->def->gpioSDAPin, 256, false, false);
-        esp_rom_gpio_connect_out_signal(i2c->def->gpioSDAPin, 256, false, false);
+        // change gpio_pad_select_gpio(i2c->def->gpioSDAPin);
+        esp_rom_gpio_connect_out_signal(i2c->def->gpioSDAPin, SIG_GPIO_OUT_IDX, false, false);
+        // change gpio_matrix_out(i2c->def->gpioSDAPin, SIG_GPIO_OUT_IDX, false, false);
         gpio_set_direction(i2c->def->gpioSDAPin, GPIO_MODE_INPUT);
 
         esp_rom_gpio_pad_select_gpio(i2c->def->gpioSCLPin);
-        // gpio_matrix_out(i2c->def->gpioSCLPin, 256, false, false);
-        esp_rom_gpio_connect_out_signal(i2c->def->gpioSCLPin, 256, false, false);
+        // change gpio_pad_select_gpio(i2c->def->gpioSCLPin);
+        esp_rom_gpio_connect_out_signal(i2c->def->gpioSCLPin, SIG_GPIO_OUT_IDX, false, false);
+        // change gpio_matrix_out(i2c->def->gpioSCLPin, SIG_GPIO_OUT_IDX, false, false);
         gpio_set_direction(i2c->def->gpioSCLPin, GPIO_MODE_INPUT);
 
         vSemaphoreDelete(i2c->isBusFreeMutex);

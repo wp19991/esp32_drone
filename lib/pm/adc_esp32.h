@@ -13,25 +13,25 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
-// #include "config.h"
+#include "config.h"
 
 /******** Types ********/
 
 // 定义结构体 AdcPair，用于存储ADC采样值
 typedef struct __attribute__((packed)) {
-  uint16_t vref;  // 参考电压值
-  uint16_t val;   // ADC采样值
+    uint16_t vref; // 参考电压值
+    uint16_t val;  // ADC采样值
 } AdcPair;
 
 // 定义结构体 AdcGroup，用于存储ADC采样值组
 typedef struct __attribute__((packed)) {
-  AdcPair vbat;  // 电池电压的ADC采样值组
+    AdcPair vbat;  // 电池电压的ADC采样值组
 } AdcGroup;
 
 // 定义结构体 AdcDeciGroup，用于存储ADC采样值的十分之一倍
 typedef struct {
-  uint16_t vbat;      // 电池电压的ADC采样值
-  uint16_t vbatVref;  // 参考电压的ADC采样值
+    uint16_t vbat;    // 电池电压的ADC采样值
+    uint16_t vbatVref; // 参考电压的ADC采样值
 } AdcDeciGroup;
 
 /*** Public interface ***/
@@ -73,7 +73,7 @@ void adcInterruptHandler(void);
 /**
  * ADC任务函数
  */
-void adcTask(void* param);
+void adcTask(void *param);
 
 /**
  * 从指定引脚读取电压值。

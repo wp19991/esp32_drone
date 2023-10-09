@@ -117,10 +117,10 @@ static uint16_t motorsConv16ToBits(uint16_t bits) {
 }
 
 // 初始化 PWM 定时器
-bool pwm_timmer_init(int freq_hz) {
+bool pwm_timmer_init() {
     if (isTimerInit) {
         // 第一个初始化将会配置它
-        return true;
+        return TRUE;
     }
 
     /*
@@ -128,7 +128,7 @@ bool pwm_timmer_init(int freq_hz) {
      */
     ledc_timer_config_t ledc_timer = {
             .duty_resolution = MOTORS_PWM_BITS, // PWM 占空比的分辨率
-            .freq_hz = freq_hz,                  // PWM 信号的频率
+            .freq_hz = 15000,                  // PWM 信号的频率
             .speed_mode = LEDC_LOW_SPEED_MODE, // 计时器模式
             .timer_num = LEDC_TIMER_0,         // 计时器索引
             // .clk_cfg = LEDC_AUTO_CLK,              // 自动选择源时钟
@@ -136,17 +136,17 @@ bool pwm_timmer_init(int freq_hz) {
 
     // 设置计时器0的配置，用于高速通道
     if (ledc_timer_config(&ledc_timer) == ESP_OK) {
-        isTimerInit = true;
-        return true;
+        isTimerInit = TRUE;
+        return TRUE;
     }
 
-    return false;
+    return FALSE;
 }
 
 /* 公共函数 */
 
 // 初始化电机。将所有电机比例设置为 0%
-void motorsInit(int freq_hz) {
+void motorsInit(void) {
     int i;
 
     if (isInit) {
@@ -156,7 +156,7 @@ void motorsInit(int freq_hz) {
 
     //motorMap = motorMapSelect;
 
-    if (pwm_timmer_init(freq_hz) != true) {
+    if (pwm_timmer_init() != TRUE) {
         return;
     }
 

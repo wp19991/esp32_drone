@@ -6,9 +6,9 @@
 #include "freertos/queue.h"
 #include "driver/i2c.h"
 
-#include "mpconfigboard.h"
-
 #define I2C_NO_INTERNAL_ADDRESS   0xFFFF
+
+//#define configSUPPORT_DYNAMIC_ALLOCATION 1
 
 typedef enum {
     i2cAck,
@@ -29,7 +29,7 @@ typedef struct _I2cMessage {
     uint8_t nbrOfRetries;      //< 重试次数。
     I2cDirection direction;          //< 消息方向
     I2cStatus status;             //< I2C状态
-    QueueHandle_t clientQueue;        //< 发送接收消息的队列。
+    xQueueHandle clientQueue;        //< 发送接收消息的队列。
     bool isInternal16bit;    //< 是否是16位内部地址。如果为false，为8位。
     uint16_t internalAddress;    //< 设备的内部地址。
     uint8_t *buffer;            //< 数据缓冲区的指针，用于传输数据或接收数据。

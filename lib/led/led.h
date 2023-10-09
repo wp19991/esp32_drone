@@ -1,9 +1,3 @@
-/*
- * @Date: 2023-09-27 17:17:29
- * @LastEditors: wp
- * @LastEditTime: 2023-09-27 17:22:26
- * @FilePath: \DRONE\lib\led\led.h
- */
 /**
 *
  * ESP-Drone Firmware
@@ -48,8 +42,6 @@
 #define ERR_LED2         LED_GREEN
 
 #define LED_NUM 2
-
-#define M2T(X) ((unsigned int)(X)/ portTICK_PERIOD_MS) //ms to tick
 
 typedef enum {LED_BLUE = 0, LED_GREEN} led_t;
 

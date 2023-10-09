@@ -4,10 +4,8 @@
 
 #include "config_param.h"
 #include "position_pid.h"
-//#include "remoter_ctrl.h"
 #include "stabilizer.h"
 #include "state_estimator.h"
-#include "attitude_pid.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"

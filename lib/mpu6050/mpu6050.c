@@ -34,7 +34,6 @@
 #include "i2cdev.h"
 #include "mpu6050.h"
 
-// #include "py/obj.h"
 #include "esp_log.h"
 static const char* TAG = "MPU6050";
 
@@ -106,8 +105,7 @@ bool mpu6050SelfTest()
     // First values after startup can be read as zero. Scrap a couple to be sure.
     for (scrap = 0; scrap < 5; scrap++) {
         mpu6050GetMotion6(&axi16, &ayi16, &azi16, &gxi16, &gyi16, &gzi16);
-        // vTaskDelay(2 / portTICK_RATE_MS);
-        vTaskDelay(10);
+        vTaskDelay(2 / portTICK_RATE_MS);
     }
 
     // First measurement

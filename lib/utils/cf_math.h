@@ -1,5 +1,27 @@
 /**
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
+ * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
+ * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
+ *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
+ *
  * ESP-Drone Firmware
+ *
+ * Copyright 2019-2020  Espressif Systems (Shanghai)
+ * Copyright (C) 2018 Bitcraze AB
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, in version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
  * Utilities to simplify unit testing
  *
  */
@@ -18,7 +40,6 @@
 #pragma GCC diagnostic pop
 
 #include "cfassert.h"
-#include "debug_assert.h"
 
 
 #define DEG_TO_RAD (PI/180.0f)
@@ -31,7 +52,7 @@
 static inline void assert_aligned_4_bytes(const xtensa_matrix_instance_f32 *matrix)
 {
     const uint32_t address = (uint32_t)matrix->pData;
-    ASSERT((address & 0x3) == 0);
+    assert((address & 0x3) == 0);
 }
 
 static inline void mat_trans(const xtensa_matrix_instance_f32 *pSrc, xtensa_matrix_instance_f32 *pDst)
@@ -39,7 +60,7 @@ static inline void mat_trans(const xtensa_matrix_instance_f32 *pSrc, xtensa_matr
     assert_aligned_4_bytes(pSrc);
     assert_aligned_4_bytes(pDst);
 
-    ASSERT(XTENSA_MATH_SUCCESS == xtensa_mat_trans_f32(pSrc, pDst));
+    assert(XTENSA_MATH_SUCCESS == xtensa_mat_trans_f32(pSrc, pDst));
 }
 
 static inline void mat_inv(const xtensa_matrix_instance_f32 *pSrc, xtensa_matrix_instance_f32 *pDst)
@@ -47,7 +68,7 @@ static inline void mat_inv(const xtensa_matrix_instance_f32 *pSrc, xtensa_matrix
     assert_aligned_4_bytes(pSrc);
     assert_aligned_4_bytes(pDst);
 
-    ASSERT(XTENSA_MATH_SUCCESS == xtensa_mat_inverse_f32(pSrc, pDst));
+    assert(XTENSA_MATH_SUCCESS == xtensa_mat_inverse_f32(pSrc, pDst));
 }
 
 static inline void mat_mult(const xtensa_matrix_instance_f32 *pSrcA, const xtensa_matrix_instance_f32 *pSrcB, xtensa_matrix_instance_f32 *pDst)
@@ -56,14 +77,14 @@ static inline void mat_mult(const xtensa_matrix_instance_f32 *pSrcA, const xtens
     assert_aligned_4_bytes(pSrcB);
     assert_aligned_4_bytes(pDst);
 
-    ASSERT(XTENSA_MATH_SUCCESS == xtensa_mat_mult_f32(pSrcA, pSrcB, pDst));
+    assert(XTENSA_MATH_SUCCESS == xtensa_mat_mult_f32(pSrcA, pSrcB, pDst));
 }
 
 static inline float xtensa_sqrt(float32_t in)
 {
     float pOut = 0;
     xtensa_status result = xtensa_sqrt_f32(in, &pOut);
-    ASSERT(XTENSA_MATH_SUCCESS == result);
+    assert(XTENSA_MATH_SUCCESS == result);
     return pOut;
 }
 

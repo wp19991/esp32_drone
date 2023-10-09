@@ -1,10 +1,3 @@
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#include "freertos/semphr.h"
-
-// #include "py/obj.h"
 // #include "anop.h"
 #include "system_int.h"
 #include "config_param.h"
@@ -15,7 +8,6 @@
 #include "stabilizer.h"
 #include "ledseq.h"
 #include "motors.h"
-#include "mpconfigboard.h"
 
 static const char* TAG = "system_int";
 
@@ -42,8 +34,7 @@ void systemInit(void)
 	ledseqInit();
 	ledseqRun(SYS_LED, seq_alive);
 	configParamInit();//初始化参数
-	motorsInit(MOTORS_FREQ_HZ);
-	
+	motorsInit();
 	pmInit();
 	//初始化传感器
 	sensorsMpu6050Spl06Init();

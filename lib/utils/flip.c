@@ -5,9 +5,6 @@
 #include "stabilizer.h"
 
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
 #define FLIP_RATE		RATE_500_HZ				/*周期*/	
 #define MID_ANGLE		(180.f * FLIP_RATE)		/*中间角度 放大500倍*/
 #define MAX_FLIP_RATE	1380					/* <2000 */

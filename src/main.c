@@ -1,12 +1,7 @@
 #include "commander.h"
-#include "hmc5883l.h"
 #include "i2cdev.h"
-#include "ledseq.h"
-#include "motors.h"
-#include "mpu6050.h"
 #include "pm_esplane.h"
 #include "sensors_mpu6050_spl06.h"
-#include "spl06.h"
 #include "stabilizer.h"
 #include "state_estimator.h"
 #include "system_int.h"
@@ -136,9 +131,6 @@ void read_compass(void) {
   tuple[2] = mag.z;
 }
 
-void read_calibrated(void) {
-  read_calibrated();
-}
 
 void read_air_pressure(void) {
   float temp, press, asl;
@@ -227,7 +219,7 @@ void app_main() {
 
   ESP_LOGI(TAG, "stop\n");
   // 停止并且降落
-  // drone_stop();
+   drone_stop();
 
   ESP_LOGI(TAG, "fly ok\n");
 }
