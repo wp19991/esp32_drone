@@ -56,44 +56,41 @@
  */
 
 void xtensa_max_f32(
-  float32_t * pSrc,
-  uint32_t blockSize,
-  float32_t * pResult,
-  uint32_t * pIndex)
-{
+        float32_t *pSrc,
+        uint32_t blockSize,
+        float32_t *pResult,
+        uint32_t *pIndex) {
 
 
-  float32_t maxVal1, out;                        /* Temporary variables to store the output value. */
-  uint32_t blkCnt, outIndex;                     /* loop counter */
+    float32_t maxVal1, out;                        /* Temporary variables to store the output value. */
+    uint32_t blkCnt, outIndex;                     /* loop counter */
 
-  /* Initialise the index value to zero. */
-  outIndex = 0U;
-  /* Load first input value that act as reference value for comparision */
-  out = *pSrc++;
+    /* Initialise the index value to zero. */
+    outIndex = 0U;
+    /* Load first input value that act as reference value for comparision */
+    out = *pSrc++;
 
-  blkCnt = (blockSize - 1U);
+    blkCnt = (blockSize - 1U);
 
 
-  while (blkCnt > 0U)
-  {
-    /* Initialize maxVal to the next consecutive values one by one */
-    maxVal1 = *pSrc++;
+    while (blkCnt > 0U) {
+        /* Initialize maxVal to the next consecutive values one by one */
+        maxVal1 = *pSrc++;
 
-    /* compare for the maximum value */
-    if (out < maxVal1)
-    {
-      /* Update the maximum value and it's index */
-      out = maxVal1;
-      outIndex = blockSize - blkCnt;
+        /* compare for the maximum value */
+        if (out < maxVal1) {
+            /* Update the maximum value and it's index */
+            out = maxVal1;
+            outIndex = blockSize - blkCnt;
+        }
+
+        /* Decrement the loop counter */
+        blkCnt--;
     }
 
-    /* Decrement the loop counter */
-    blkCnt--;
-  }
-
-  /* Store the maximum value and it's index into destination pointers */
-  *pResult = out;
-  *pIndex = outIndex;
+    /* Store the maximum value and it's index into destination pointers */
+    *pResult = out;
+    *pIndex = outIndex;
 }
 
 /**

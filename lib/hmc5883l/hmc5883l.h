@@ -30,6 +30,7 @@ THE SOFTWARE.
 
 #ifndef HMC5883L_H_
 #define HMC5883L_H_
+
 #include <stdbool.h>
 #include "i2cdev.h"
 
@@ -46,30 +47,29 @@ THE SOFTWARE.
 #define QMC5883L_RA_DATAZ_L         0x04
 #define QMC5883L_RA_DATAZ_H         0x05
 #define QMC5883L_RA_STATUS          0x06
-#define QMC5883L_RA_DATA_TEMP_L		0x07
-#define QMC5883L_RA_DATA_TEMP_H		0x08
+#define QMC5883L_RA_DATA_TEMP_L        0x07
+#define QMC5883L_RA_DATA_TEMP_H        0x08
 #define QMC5883L_RA_CONFIG_1        0x09
 #define QMC5883L_RA_CONFIG_2        0x0A
-#define QMC5883L_RA_MODE	        0x0B
-#define QMC5883L_CHIP_ID			0x0D
+#define QMC5883L_RA_MODE            0x0B
+#define QMC5883L_CHIP_ID            0x0D
 
-#define QMC5883L_MODE_STANDBY		0x00
-#define QMC5883L_MODE_CONTINUOUS	0x01
+#define QMC5883L_MODE_STANDBY        0x00
+#define QMC5883L_MODE_CONTINUOUS    0x01
 
-#define QMC5883L_OUTPUT_10HZ		0x00
-#define QMC5883L_OUTPUT_50HZ		0x04
-#define QMC5883L_OUTPUT_100HZ		0x08
-#define QMC5883L_OUTPUT_200HZ		0x0C
+#define QMC5883L_OUTPUT_10HZ        0x00
+#define QMC5883L_OUTPUT_50HZ        0x04
+#define QMC5883L_OUTPUT_100HZ        0x08
+#define QMC5883L_OUTPUT_200HZ        0x0C
 
-#define QMC5883L_OUTPUT_2G			0x00
-#define QMC5883L_OUTPUT_8G			0x10
+#define QMC5883L_OUTPUT_2G            0x00
+#define QMC5883L_OUTPUT_8G            0x10
 
-#define QMC5883L_SAMPLE_64			0xC0
-#define QMC5883L_SAMPLE_128			0x80
-#define QMC5883L_SAMPLE_256			0x40
-#define QMC5883L_SAMPLE_512			0x00
-#define QMC5883L_STATUS_DRDY_BIT	0x01
-
+#define QMC5883L_SAMPLE_64            0xC0
+#define QMC5883L_SAMPLE_128            0x80
+#define QMC5883L_SAMPLE_256            0x40
+#define QMC5883L_SAMPLE_512            0x00
+#define QMC5883L_STATUS_DRDY_BIT    0x01
 
 
 #define HMC5883L_RA_CONFIG_A        0x00
@@ -147,35 +147,50 @@ THE SOFTWARE.
 #define HMC5883L_ST_Z_MAX           (int32_t)(HMC5883L_ST_Z_NORM + (HMC5883L_ST_Z_NORM * HMC5883L_ST_ERROR))
 
 void hmc5883lInit(I2C_Dev *i2cPort);
+
 void hmc5883lDeInit(void);
+
 bool hmc5883lTestConnection();
+
 bool hmc5883lSelfTest();
+
 bool hmc5883lEvaluateSelfTest(int16_t min, int16_t max, int16_t value, char *string);
 
 // CONFIG_A register
 uint8_t hmc5883lGetSampleAveraging();
+
 void hmc5883lSetSampleAveraging(uint8_t averaging);
+
 uint8_t hmc5883lGetDataRate();
+
 void hmc5883lSetDataRate(uint8_t rate);
+
 uint8_t hmc5883lGetMeasurementBias();
+
 void hmc5883lSetMeasurementBias(uint8_t bias);
 
 // CONFIG_B register
 uint8_t hmc5883lGetGain();
+
 void hmc5883lSetGain(uint8_t gain);
 
 // MODE register
 uint8_t hmc5883lGetMode();
+
 void hmc5883lSetMode(uint8_t mode);
 
 // DATA* registers
 void hmc5883lGetHeading(int16_t *x, int16_t *y, int16_t *z);
+
 int16_t hmc5883lGetHeadingX();
+
 int16_t hmc5883lGetHeadingY();
+
 int16_t hmc5883lGetHeadingZ();
 
 // STATUS register
 bool hmc5883lGetLockStatus();
+
 bool hmc5883lGetReadyStatus();
 
 

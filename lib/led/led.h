@@ -19,8 +19,8 @@
  *
  * led.h - LED functions header file
  */
-#ifndef __LED_H__
-#define __LED_H__
+#ifndef LED_H_
+#define LED_H_
 
 #include <stdbool.h>
 
@@ -43,9 +43,12 @@
 
 #define LED_NUM 2
 
-typedef enum {LED_BLUE = 0, LED_GREEN} led_t;
+typedef enum {
+    LED_BLUE = 0, LED_GREEN
+} led_t;
 
 void ledInit();
+
 bool ledTest();
 
 // Clear all configured LEDs
@@ -58,6 +61,7 @@ void ledSetAll(void);
 void ledSet(led_t led, bool value);
 
 void ledTask(void *param);
+
 void ledDeInit(void);
 //Legacy functions
 

@@ -1,5 +1,6 @@
-#ifndef __ATTITUDE_PID_H
-#define __ATTITUDE_PID_H
+#ifndef ATTITUDE_PID_H
+#define ATTITUDE_PID_H
+
 #include <stdbool.h>
 #include "commander.h"
 #include "pid.h"
@@ -13,13 +14,19 @@ extern PidObject pidRatePitch;
 extern PidObject pidRateYaw;
 
 void attitudeControlInit(float rateDt, float angleDt);
+
 bool attitudeControlTest(void);
 
-void attitudeRatePID(Axis3f *actualRate,attitude_t *desiredRate,control_t *output);
-void attitudeAnglePID(attitude_t *actualAngle,attitude_t *desiredAngle,attitude_t *outDesiredRate);
+void attitudeRatePID(Axis3f *actualRate, attitude_t *desiredRate, control_t *output);
+
+void attitudeAnglePID(attitude_t *actualAngle, attitude_t *desiredAngle, attitude_t *outDesiredRate);
+
 void attitudeControllerResetRollAttitudePID(void);
+
 void attitudeControllerResetPitchAttitudePID(void);
+
 void attitudeResetAllPID(void);
+
 void attitudePIDwriteToConfigParam(void);
 
-#endif /* __ATTITUDE_PID_H */
+#endif /* ATTITUDE_PID_H */

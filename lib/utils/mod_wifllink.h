@@ -19,16 +19,17 @@
 #include "anop.h"
 
 #define WIFI_RX_TX_PACKET_SIZE   (128)
-typedef struct
-{
-  uint8_t size;
-  uint8_t data[WIFI_RX_TX_PACKET_SIZE];
+typedef struct {
+    uint8_t size;
+    uint8_t data[WIFI_RX_TX_PACKET_SIZE];
 } UDPPacket;
 //-------------------------------------------------------------------------------------------------------
 //extern const mp_obj_type_t drone_wifilink_type;
 
 bool wifiGetDataBlocking(UDPPacket *in);
+
 bool wifiSendData(uint32_t size, uint8_t *data);
+
 bool getUDPConnectedStatus(void);
 
 #endif // MOD_WIFILINK_H

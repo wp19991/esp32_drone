@@ -30,7 +30,6 @@
 /*FreeRtos includes*/
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
-#include "freertos/semphr.h"
 #include "console.h"
 #include "anop.h"
 #include "mod_wifllink.h"
@@ -50,144 +49,126 @@ static void addBufferFullMarker();
  * Send the data to the client
  * returns TRUE if successful otherwise FALSE
  */
-static bool consoleSendMessage(void)
-{
-	if(anopSendLogStr(messageToPrint.data,messageToPrint.size,2))
-	// if (crtpSendPacket(&messageToPrint) == pdTRUE)
-	{
-		messageToPrint.size = 0;
-		messageSendingIsPending = false;
-	}
-	else
-	{
-		return false;
-	}
+static bool consoleSendMessage(void) {
+    if (anopSendLogStr(messageToPrint.data, messageToPrint.size, 2))
+        // if (crtpSendPacket(&messageToPrint) == pdTRUE)
+    {
+        messageToPrint.size = 0;
+        messageSendingIsPending = false;
+    } else {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
-void consoleInit()
-{
-  if (isInit)
-    return;
-  messageToPrint.size = 0;
-  vSemaphoreCreateBinary(synch);
-  messageSendingIsPending = false;
+void consoleInit() {
+    if (isInit)
+        return;
+    messageToPrint.size = 0;
+    vSemaphoreCreateBinary(synch);
+    messageSendingIsPending = false;
 
-  isInit = true;
+    isInit = true;
 }
 
-bool consoleTest(void)
-{
-  return isInit;
+bool consoleTest(void) {
+    return isInit;
 }
 
 /* 输入一个字符到console缓冲区*/
-int consolePutchar(int ch)
-{
-  bool isInInterrupt = false; //bool isInInterrupt = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
+int consolePutchar(int ch) {
+    bool isInInterrupt = false; //bool isInInterrupt = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
 
-  if (!isInit) {
-    return 0;
-  }
-
-  if (isInInterrupt) {
-    return consolePutcharFromISR(ch);
-  }
-
-  if (xSemaphoreTake(synch, portMAX_DELAY) == pdTRUE)
-  {
-    // Try to send if we already have a pending message
-    if (messageSendingIsPending) 
-    {
-      consoleSendMessage();
+    if (!isInit) {
+        return 0;
     }
 
-    if (! messageSendingIsPending) 
-    {
-      if (messageToPrint.size < ANO_MAX_DATA_SIZE-4)
-      {
-        messageToPrint.data[messageToPrint.size] = (unsigned char)ch;
-        messageToPrint.size++;
-      }
+    if (isInInterrupt) {
+        return consolePutcharFromISR(ch);
+    }
 
-      if (ch == '\n' || messageToPrint.size >= ANO_MAX_DATA_SIZE-4)
-      {
-        //if (crtpGetFreeTxQueuePackets() == 1) //获取队列发送个数
-        {
-          addBufferFullMarker();	
+    if (xSemaphoreTake(synch, portMAX_DELAY) == pdTRUE) {
+        // Try to send if we already have a pending message
+        if (messageSendingIsPending) {
+            consoleSendMessage();
         }
-        messageSendingIsPending = true;
-        consoleSendMessage();
-      }
-    }
-    xSemaphoreGive(synch);
-  }
 
-  return (unsigned char)ch;
+        if (!messageSendingIsPending) {
+            if (messageToPrint.size < ANO_MAX_DATA_SIZE - 4) {
+                messageToPrint.data[messageToPrint.size] = (unsigned char) ch;
+                messageToPrint.size++;
+            }
+
+            if (ch == '\n' || messageToPrint.size >= ANO_MAX_DATA_SIZE - 4) {
+                //if (crtpGetFreeTxQueuePackets() == 1) //获取队列发送个数
+                {
+                    addBufferFullMarker();
+                }
+                messageSendingIsPending = true;
+                consoleSendMessage();
+            }
+        }
+        xSemaphoreGive(synch);
+    }
+
+    return (unsigned char) ch;
 }
 
 /* 中断方式输入一个字符到console缓冲区*/
 int consolePutcharFromISR(int ch) {
-  BaseType_t higherPriorityTaskWoken;
+    BaseType_t higherPriorityTaskWoken;
 
-  if (xSemaphoreTakeFromISR(synch, &higherPriorityTaskWoken) == pdTRUE) {
-    if (messageToPrint.size < ANO_MAX_DATA_SIZE-4)
-    {
-      messageToPrint.data[messageToPrint.size] = (unsigned char)ch;
-      messageToPrint.size++;
+    if (xSemaphoreTakeFromISR(synch, &higherPriorityTaskWoken) == pdTRUE) {
+        if (messageToPrint.size < ANO_MAX_DATA_SIZE - 4) {
+            messageToPrint.data[messageToPrint.size] = (unsigned char) ch;
+            messageToPrint.size++;
+        }
+        xSemaphoreGiveFromISR(synch, &higherPriorityTaskWoken);
     }
-    xSemaphoreGiveFromISR(synch, &higherPriorityTaskWoken);
-  }
 
-  return ch;
+    return ch;
 }
+
 /* 输入一个字符串到console缓冲区*/
-int consolePuts(char *str)
-{
-  int ret = 0;
+int consolePuts(char *str) {
+    int ret = 0;
 
-  while(*str)
-    ret |= consolePutchar(*str++);
+    while (*str)
+        ret |= consolePutchar(*str++);
 
-  return ret;
+    return ret;
 }
 
-void consoleFlush(void)
-{
-  if (xSemaphoreTake(synch, portMAX_DELAY) == pdTRUE)
-  {
-    consoleSendMessage();
-    xSemaphoreGive(synch);
-  }
+void consoleFlush(void) {
+    if (xSemaphoreTake(synch, portMAX_DELAY) == pdTRUE) {
+        consoleSendMessage();
+        xSemaphoreGive(synch);
+    }
 }
 
 
-static int findMarkerStart()
-{
-  int start = messageToPrint.size;
-  
-  // If last char is new line, rewind one char since the marker contains a new line.
-  if (start > 0 && messageToPrint.data[start - 1] == '\n')
-  {
-    start -= 1;
-  }
+static int findMarkerStart() {
+    int start = messageToPrint.size;
 
-  return start;
+    // If last char is new line, rewind one char since the marker contains a new line.
+    if (start > 0 && messageToPrint.data[start - 1] == '\n') {
+        start -= 1;
+    }
+
+    return start;
 }
 
-static void addBufferFullMarker()
-{
-  // Try to add the marker after the message if it fits in the buffer, otherwise overwrite the end of the message 
-  int endMarker = findMarkerStart() + sizeof(bufferFullMsg);
-  if (endMarker >= (ANO_MAX_DATA_SIZE-4)) 
-  {
-    endMarker = ANO_MAX_DATA_SIZE-4;
-  }
+static void addBufferFullMarker() {
+    // Try to add the marker after the message if it fits in the buffer, otherwise overwrite the end of the message
+    int endMarker = findMarkerStart() + sizeof(bufferFullMsg);
+    if (endMarker >= (ANO_MAX_DATA_SIZE - 4)) {
+        endMarker = ANO_MAX_DATA_SIZE - 4;
+    }
 
-  int startMarker = endMarker - sizeof(bufferFullMsg);
-  memcpy(&messageToPrint.data[startMarker], bufferFullMsg, sizeof(bufferFullMsg));
-  messageToPrint.size = startMarker + sizeof(bufferFullMsg);
+    int startMarker = endMarker - sizeof(bufferFullMsg);
+    memcpy(&messageToPrint.data[startMarker], bufferFullMsg, sizeof(bufferFullMsg));
+    messageToPrint.size = startMarker + sizeof(bufferFullMsg);
 }
 
 #endif

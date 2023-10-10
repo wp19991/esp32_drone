@@ -62,89 +62,87 @@
 */
 
 xtensa_status xtensa_cfft_radix4_init_f32(
-  xtensa_cfft_radix4_instance_f32 * S,
-  uint16_t fftLen,
-  uint8_t ifftFlag,
-  uint8_t bitReverseFlag)
-{
-  /*  Initialise the default xtensa status */
-  xtensa_status status = XTENSA_MATH_SUCCESS;
+        xtensa_cfft_radix4_instance_f32 *S,
+        uint16_t fftLen,
+        uint8_t ifftFlag,
+        uint8_t bitReverseFlag) {
+    /*  Initialise the default xtensa status */
+    xtensa_status status = XTENSA_MATH_SUCCESS;
 
-  /*  Initialise the FFT length */
-  S->fftLen = fftLen;
+    /*  Initialise the FFT length */
+    S->fftLen = fftLen;
 
-  /*  Initialise the Twiddle coefficient pointer */
-  S->pTwiddle = (float32_t *) twiddleCoef;
+    /*  Initialise the Twiddle coefficient pointer */
+    S->pTwiddle = (float32_t *) twiddleCoef;
 
-  /*  Initialise the Flag for selection of CFFT or CIFFT */
-  S->ifftFlag = ifftFlag;
+    /*  Initialise the Flag for selection of CFFT or CIFFT */
+    S->ifftFlag = ifftFlag;
 
-  /*  Initialise the Flag for calculation Bit reversal or not */
-  S->bitReverseFlag = bitReverseFlag;
+    /*  Initialise the Flag for calculation Bit reversal or not */
+    S->bitReverseFlag = bitReverseFlag;
 
-  /*  Initializations of structure parameters depending on the FFT length */
-  switch (S->fftLen)
-  {
+    /*  Initializations of structure parameters depending on the FFT length */
+    switch (S->fftLen) {
 
-  case 4096U:
-    /*  Initializations of structure parameters for 4096 point FFT */
+        case 4096U:
+            /*  Initializations of structure parameters for 4096 point FFT */
 
-    /*  Initialise the twiddle coef modifier value */
-    S->twidCoefModifier = 1U;
-    /*  Initialise the bit reversal table modifier */
-    S->bitRevFactor = 1U;
-    /*  Initialise the bit reversal table pointer */
-    S->pBitRevTable = (uint16_t *) xtensaBitRevTable;
-    /*  Initialise the 1/fftLen Value */
-    S->onebyfftLen = 0.000244140625;
-    break;
+            /*  Initialise the twiddle coef modifier value */
+            S->twidCoefModifier = 1U;
+            /*  Initialise the bit reversal table modifier */
+            S->bitRevFactor = 1U;
+            /*  Initialise the bit reversal table pointer */
+            S->pBitRevTable = (uint16_t *) xtensaBitRevTable;
+            /*  Initialise the 1/fftLen Value */
+            S->onebyfftLen = 0.000244140625;
+            break;
 
-  case 1024U:
-    /*  Initializations of structure parameters for 1024 point FFT */
+        case 1024U:
+            /*  Initializations of structure parameters for 1024 point FFT */
 
-    /*  Initialise the twiddle coef modifier value */
-    S->twidCoefModifier = 4U;
-    /*  Initialise the bit reversal table modifier */
-    S->bitRevFactor = 4U;
-    /*  Initialise the bit reversal table pointer */
-    S->pBitRevTable = (uint16_t *) & xtensaBitRevTable[3];
-    /*  Initialise the 1/fftLen Value */
-    S->onebyfftLen = 0.0009765625f;
-    break;
+            /*  Initialise the twiddle coef modifier value */
+            S->twidCoefModifier = 4U;
+            /*  Initialise the bit reversal table modifier */
+            S->bitRevFactor = 4U;
+            /*  Initialise the bit reversal table pointer */
+            S->pBitRevTable = (uint16_t *) &xtensaBitRevTable[3];
+            /*  Initialise the 1/fftLen Value */
+            S->onebyfftLen = 0.0009765625f;
+            break;
 
 
-  case 256U:
-    /*  Initializations of structure parameters for 256 point FFT */
-    S->twidCoefModifier = 16U;
-    S->bitRevFactor = 16U;
-    S->pBitRevTable = (uint16_t *) & xtensaBitRevTable[15];
-    S->onebyfftLen = 0.00390625f;
-    break;
+        case 256U:
+            /*  Initializations of structure parameters for 256 point FFT */
+            S->twidCoefModifier = 16U;
+            S->bitRevFactor = 16U;
+            S->pBitRevTable = (uint16_t *) &xtensaBitRevTable[15];
+            S->onebyfftLen = 0.00390625f;
+            break;
 
-  case 64U:
-    /*  Initializations of structure parameters for 64 point FFT */
-    S->twidCoefModifier = 64U;
-    S->bitRevFactor = 64U;
-    S->pBitRevTable = (uint16_t *) & xtensaBitRevTable[63];
-    S->onebyfftLen = 0.015625f;
-    break;
+        case 64U:
+            /*  Initializations of structure parameters for 64 point FFT */
+            S->twidCoefModifier = 64U;
+            S->bitRevFactor = 64U;
+            S->pBitRevTable = (uint16_t *) &xtensaBitRevTable[63];
+            S->onebyfftLen = 0.015625f;
+            break;
 
-  case 16U:
-    /*  Initializations of structure parameters for 16 point FFT */
-    S->twidCoefModifier = 256U;
-    S->bitRevFactor = 256U;
-    S->pBitRevTable = (uint16_t *) & xtensaBitRevTable[255];
-    S->onebyfftLen = 0.0625f;
-    break;
+        case 16U:
+            /*  Initializations of structure parameters for 16 point FFT */
+            S->twidCoefModifier = 256U;
+            S->bitRevFactor = 256U;
+            S->pBitRevTable = (uint16_t *) &xtensaBitRevTable[255];
+            S->onebyfftLen = 0.0625f;
+            break;
 
 
-  default:
-    /*  Reporting argument error if fftSize is not valid value */
-    status = XTENSA_MATH_ARGUMENT_ERROR;
-    break;
-  }
+        default:
+            /*  Reporting argument error if fftSize is not valid value */
+            status = XTENSA_MATH_ARGUMENT_ERROR;
+            break;
+    }
 
-  return (status);
+    return (status);
 }
 
 /**

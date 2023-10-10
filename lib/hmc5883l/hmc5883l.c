@@ -34,6 +34,7 @@
 #include "i2cdev.h"
 #include "hmc5883l.h"
 #include "esp_log.h"
+
 #define TAG "HMC5883L"
 
 static uint8_t devAddr;
@@ -50,8 +51,7 @@ static bool isInit;
  * after initialization, especially the gain settings if you happen to be seeing
  * a lot of -4096 values (see the datasheet for mor information).
  */
-void hmc5883lInit(I2C_Dev *i2cPort)
-{
+void hmc5883lInit(I2C_Dev *i2cPort) {
     if (isInit) {
         return;
     }
@@ -59,27 +59,26 @@ void hmc5883lInit(I2C_Dev *i2cPort)
     I2Cx = i2cPort;
     devAddr = HMC5883L_ADDRESS;
 
-	i2cdevWriteByte(I2Cx, devAddr, QMC5883L_RA_CONFIG_2,0x00);
-	vTaskDelay(100 / portTICK_PERIOD_MS);
+    i2cdevWriteByte(I2Cx, devAddr, QMC5883L_RA_CONFIG_2, 0x00);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
 
-	i2cdevWriteByte(I2Cx, devAddr, QMC5883L_RA_MODE,0x01);
-	i2cdevWriteByte(I2Cx, devAddr, QMC5883L_RA_CONFIG_2,0x40);
+    i2cdevWriteByte(I2Cx, devAddr, QMC5883L_RA_MODE, 0x01);
+    i2cdevWriteByte(I2Cx, devAddr, QMC5883L_RA_CONFIG_2, 0x40);
     isInit = true;
 }
-void hmc5883lDeInit(void)
-{
-	isInit = false;
+
+void hmc5883lDeInit(void) {
+    isInit = false;
 }
 /** Verify the I2C connection.
  * Make sure the device is connected and responds as expected.
  * @return True if connection is valid, false otherwise
  */
-bool hmc5883lTestConnection()
-{
-	uint8_t read_id = 0;
+bool hmc5883lTestConnection() {
+    uint8_t read_id = 0;
 
     if (i2cdevReadByte(I2Cx, devAddr, QMC5883L_CHIP_ID, &read_id)) {
-		ESP_LOGI(TAG,"MC5883 ID IS: 0x%X\n",read_id);
+        ESP_LOGI(TAG, "MC5883 ID IS: 0x%X\n", read_id);
         return (read_id == HMC5883L_DEFAULT_ADDRESS);
     }
     return false;
@@ -88,8 +87,7 @@ bool hmc5883lTestConnection()
 /** Do a self test.
  * @return True if self test passed, false otherwise
  */
-bool hmc5883lSelfTest()
-{
+bool hmc5883lSelfTest() {
     bool testStatus = true;
     return testStatus;
 }
@@ -101,11 +99,10 @@ bool hmc5883lSelfTest()
  * @param string A pointer to a string describing the value.
  * @return True if self test within min - max limit, false otherwise
  */
-bool hmc5883lEvaluateSelfTest(int16_t min, int16_t max, int16_t value, char *string)
-{
+bool hmc5883lEvaluateSelfTest(int16_t min, int16_t max, int16_t value, char *string) {
     if (value < min || value > max) {
-        ESP_LOGI(TAG,"Self test %s [FAIL]. low: %d, high: %d, measured: %d\n",
-                     string, min, max, value);
+        ESP_LOGI(TAG, "Self test %s [FAIL]. low: %d, high: %d, measured: %d\n",
+                 string, min, max, value);
         return false;
     }
 
@@ -135,11 +132,11 @@ bool hmc5883lEvaluateSelfTest(int16_t min, int16_t max, int16_t value, char *str
  * @see HMC5883L_CRA_RATE_BIT
  * @see HMC5883L_CRA_RATE_LENGTH
  */
-uint8_t hmc5883lGetDataRate()
-{
+uint8_t hmc5883lGetDataRate() {
     i2cdevReadBits(I2Cx, devAddr, HMC5883L_RA_CONFIG_A, HMC5883L_CRA_RATE_BIT, HMC5883L_CRA_RATE_LENGTH, buffer);
     return buffer[0];
 }
+
 /** Set data output rate value.
  * @param rate Rate of data output to registers
  * @see getDataRate()
@@ -148,10 +145,10 @@ uint8_t hmc5883lGetDataRate()
  * @see HMC5883L_CRA_RATE_BIT
  * @see HMC5883L_CRA_RATE_LENGTH
  */
-void hmc5883lSetDataRate(uint8_t rate)
-{
+void hmc5883lSetDataRate(uint8_t rate) {
     i2cdevWriteBits(I2Cx, devAddr, HMC5883L_RA_CONFIG_A, HMC5883L_CRA_RATE_BIT, HMC5883L_CRA_RATE_LENGTH, rate);
 }
+
 /** Get measurement bias value.
  * @return Current bias value (0-2 for normal/positive/negative respectively)
  * @see HMC5883L_BIAS_NORMAL
@@ -159,11 +156,11 @@ void hmc5883lSetDataRate(uint8_t rate)
  * @see HMC5883L_CRA_BIAS_BIT
  * @see HMC5883L_CRA_BIAS_LENGTH
  */
-uint8_t hmc5883lGetMeasurementBias()
-{
+uint8_t hmc5883lGetMeasurementBias() {
     i2cdevReadBits(I2Cx, devAddr, HMC5883L_RA_CONFIG_A, HMC5883L_CRA_BIAS_BIT, HMC5883L_CRA_BIAS_LENGTH, buffer);
     return buffer[0];
 }
+
 /** Set measurement bias value.
  * @param bias New bias value (0-2 for normal/positive/negative respectively)
  * @see HMC5883L_BIAS_NORMAL
@@ -171,8 +168,7 @@ uint8_t hmc5883lGetMeasurementBias()
  * @see HMC5883L_CRA_BIAS_BIT
  * @see HMC5883L_CRA_BIAS_LENGTH
  */
-void hmc5883lSetMeasurementBias(uint8_t bias)
-{
+void hmc5883lSetMeasurementBias(uint8_t bias) {
     i2cdevWriteBits(I2Cx, devAddr, HMC5883L_RA_CONFIG_A, HMC5883L_CRA_BIAS_BIT, HMC5883L_CRA_BIAS_LENGTH, bias);
 }
 
@@ -202,11 +198,11 @@ void hmc5883lSetMeasurementBias(uint8_t bias)
  * @see HMC5883L_MODEREG_BIT
  * @see HMC5883L_MODEREG_LENGTH
  */
-uint8_t hmc5883lGetMode()
-{
+uint8_t hmc5883lGetMode() {
     i2cdevReadBits(I2Cx, devAddr, HMC5883L_RA_MODE, HMC5883L_MODEREG_BIT, HMC5883L_MODEREG_LENGTH, buffer);
     return buffer[0];
 }
+
 /** Set measurement mode.
  * @param newMode New measurement mode
  * @see getMode()
@@ -217,15 +213,14 @@ uint8_t hmc5883lGetMode()
  * @see HMC5883L_MODEREG_BIT
  * @see HMC5883L_MODEREG_LENGTH
  */
-void hmc5883lSetMode(uint8_t newMode)
-{
+void hmc5883lSetMode(uint8_t newMode) {
     // use this method to guarantee that bits 7-2 are set to zero, which is a
     // requirement specified in the datasheet; it's actually more efficient than
     // using the I2Cdev.writeBits method
-	uint8_t tempMode = (QMC5883L_OUTPUT_10HZ | QMC5883L_OUTPUT_2G | QMC5883L_SAMPLE_128);
-	
+    uint8_t tempMode = (QMC5883L_OUTPUT_10HZ | QMC5883L_OUTPUT_2G | QMC5883L_SAMPLE_128);
+
     i2cdevWriteByte(I2Cx, devAddr, QMC5883L_RA_CONFIG_1, newMode | tempMode);
-	
+
     mode = newMode;// track to tell if we have to clear bit 7 after a read
 }
 
@@ -242,65 +237,68 @@ void hmc5883lSetMode(uint8_t newMode)
  * @param z 16-bit signed integer container for Z-axis heading
  * @see HMC5883L_RA_DATAX_H
  */
-void hmc5883lGetHeading(int16_t *x, int16_t *y, int16_t *z)
-{
+void hmc5883lGetHeading(int16_t *x, int16_t *y, int16_t *z) {
     i2cdevReadReg8(I2Cx, devAddr, HMC5883L_RA_DATAX_H, 6, buffer);
 
     if (mode == HMC5883L_MODE_SINGLE) {
-        i2cdevWriteByte(I2Cx, devAddr, HMC5883L_RA_MODE, HMC5883L_MODE_SINGLE << (HMC5883L_MODEREG_BIT - HMC5883L_MODEREG_LENGTH + 1));
+        i2cdevWriteByte(I2Cx, devAddr, HMC5883L_RA_MODE,
+                        HMC5883L_MODE_SINGLE << (HMC5883L_MODEREG_BIT - HMC5883L_MODEREG_LENGTH + 1));
     }
 
-    *x = (((int16_t)buffer[0]) << 8) | buffer[1];
-    *y = (((int16_t)buffer[4]) << 8) | buffer[5];
-    *z = (((int16_t)buffer[2]) << 8) | buffer[3];
+    *x = (((int16_t) buffer[0]) << 8) | buffer[1];
+    *y = (((int16_t) buffer[4]) << 8) | buffer[5];
+    *z = (((int16_t) buffer[2]) << 8) | buffer[3];
 }
+
 /** Get X-axis heading measurement.
  * @return 16-bit signed integer with X-axis heading
  * @see HMC5883L_RA_DATAX_H
  */
-int16_t hmc5883lGetHeadingX()
-{
+int16_t hmc5883lGetHeadingX() {
     // each axis read requires that ALL axis registers be read, even if only
     // one is used; this was not done ineffiently in the code by accident
     i2cdevReadReg8(I2Cx, devAddr, HMC5883L_RA_DATAX_H, 6, buffer);
 
     if (mode == HMC5883L_MODE_SINGLE) {
-        i2cdevWriteByte(I2Cx, devAddr, HMC5883L_RA_MODE, HMC5883L_MODE_SINGLE << (HMC5883L_MODEREG_BIT - HMC5883L_MODEREG_LENGTH + 1));
+        i2cdevWriteByte(I2Cx, devAddr, HMC5883L_RA_MODE,
+                        HMC5883L_MODE_SINGLE << (HMC5883L_MODEREG_BIT - HMC5883L_MODEREG_LENGTH + 1));
     }
 
-    return (((int16_t)buffer[0]) << 8) | buffer[1];
+    return (((int16_t) buffer[0]) << 8) | buffer[1];
 }
+
 /** Get Y-axis heading measurement.
  * @return 16-bit signed integer with Y-axis heading
  * @see HMC5883L_RA_DATAY_H
  */
-int16_t hmc5883lGetHeadingY()
-{
+int16_t hmc5883lGetHeadingY() {
     // each axis read requires that ALL axis registers be read, even if only
     // one is used; this was not done ineffiently in the code by accident
     i2cdevReadReg8(I2Cx, devAddr, HMC5883L_RA_DATAX_H, 6, buffer);
 
     if (mode == HMC5883L_MODE_SINGLE) {
-        i2cdevWriteByte(I2Cx, devAddr, HMC5883L_RA_MODE, HMC5883L_MODE_SINGLE << (HMC5883L_MODEREG_BIT - HMC5883L_MODEREG_LENGTH + 1));
+        i2cdevWriteByte(I2Cx, devAddr, HMC5883L_RA_MODE,
+                        HMC5883L_MODE_SINGLE << (HMC5883L_MODEREG_BIT - HMC5883L_MODEREG_LENGTH + 1));
     }
 
-    return (((int16_t)buffer[4]) << 8) | buffer[5];
+    return (((int16_t) buffer[4]) << 8) | buffer[5];
 }
+
 /** Get Z-axis heading measurement.
  * @return 16-bit signed integer with Z-axis heading
  * @see HMC5883L_RA_DATAZ_H
  */
-int16_t hmc5883lGetHeadingZ()
-{
+int16_t hmc5883lGetHeadingZ() {
     // each axis read requires that ALL axis registers be read, even if only
     // one is used; this was not done ineffiently in the code by accident
     i2cdevReadReg8(I2Cx, devAddr, HMC5883L_RA_DATAX_H, 6, buffer);
 
     if (mode == HMC5883L_MODE_SINGLE) {
-        i2cdevWriteByte(I2Cx, devAddr, HMC5883L_RA_MODE, HMC5883L_MODE_SINGLE << (HMC5883L_MODEREG_BIT - HMC5883L_MODEREG_LENGTH + 1));
+        i2cdevWriteByte(I2Cx, devAddr, HMC5883L_RA_MODE,
+                        HMC5883L_MODE_SINGLE << (HMC5883L_MODEREG_BIT - HMC5883L_MODEREG_LENGTH + 1));
     }
 
-    return (((int16_t)buffer[2]) << 8) | buffer[3];
+    return (((int16_t) buffer[2]) << 8) | buffer[3];
 }
 
 // STATUS register
@@ -316,8 +314,7 @@ int16_t hmc5883lGetHeadingZ()
  * @see HMC5883L_RA_STATUS
  * @see HMC5883L_STATUS_LOCK_BIT
  */
-bool hmc5883lGetLockStatus()
-{
+bool hmc5883lGetLockStatus() {
     i2cdevReadBit(I2Cx, devAddr, HMC5883L_RA_STATUS, HMC5883L_STATUS_LOCK_BIT, buffer);
     return buffer[0];
 }
@@ -331,8 +328,7 @@ bool hmc5883lGetLockStatus()
  * @see HMC5883L_RA_STATUS
  * @see HMC5883L_STATUS_READY_BIT
  */
-bool hmc5883lGetReadyStatus()
-{
+bool hmc5883lGetReadyStatus() {
     i2cdevReadBit(I2Cx, devAddr, HMC5883L_RA_STATUS, HMC5883L_STATUS_READY_BIT, buffer);
     return buffer[0];
 }

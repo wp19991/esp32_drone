@@ -30,15 +30,15 @@
 #include "xtensa_common_tables.h"
 
 extern void xtensa_radix8_butterfly_f32(
-    float32_t * pSrc,
-    uint16_t fftLen,
-    const float32_t * pCoef,
-    uint16_t twidCoefModifier);
+        float32_t *pSrc,
+        uint16_t fftLen,
+        const float32_t *pCoef,
+        uint16_t twidCoefModifier);
 
 extern void xtensa_bitreversal_32(
-    uint32_t * pSrc,
-    const uint16_t bitRevLen,
-    const uint16_t * pBitRevTable);
+        uint32_t *pSrc,
+        const uint16_t bitRevLen,
+        const uint16_t *pBitRevTable);
 
 /**
 * @ingroup groupTransforms
@@ -192,12 +192,11 @@ extern void xtensa_bitreversal_32(
 *
 */
 
-void xtensa_cfft_radix8by2_f32( xtensa_cfft_instance_f32 * S, float32_t * p1)
-{
-    uint32_t    L  = S->fftLen;
-    float32_t * pCol1, * pCol2, * pMid1, * pMid2;
-    float32_t * p2 = p1 + L;
-    const float32_t * tw = (float32_t *) S->pTwiddle;
+void xtensa_cfft_radix8by2_f32(xtensa_cfft_instance_f32 *S, float32_t *p1) {
+    uint32_t L = S->fftLen;
+    float32_t *pCol1, *pCol2, *pMid1, *pMid2;
+    float32_t *p2 = p1 + L;
+    const float32_t *tw = (float32_t *) S->pTwiddle;
     float32_t t1[4], t2[4], t3[4], t4[4], twR, twI;
     float32_t m0, m1, m2, m3;
     uint32_t l;
@@ -212,8 +211,7 @@ void xtensa_cfft_radix8by2_f32( xtensa_cfft_instance_f32 * S, float32_t * p1)
     pMid2 = p2 + L;
 
     // do two dot Fourier transform
-    for ( l = L >> 2; l > 0; l-- )
-    {
+    for (l = L >> 2; l > 0; l--) {
         t1[0] = p1[0];
         t1[1] = p1[1];
         t1[2] = p1[2];
@@ -299,19 +297,18 @@ void xtensa_cfft_radix8by2_f32( xtensa_cfft_instance_f32 * S, float32_t * p1)
     }
 
     // first col
-    xtensa_radix8_butterfly_f32( pCol1, L, (float32_t *) S->pTwiddle, 2U);
+    xtensa_radix8_butterfly_f32(pCol1, L, (float32_t *) S->pTwiddle, 2U);
     // second col
-    xtensa_radix8_butterfly_f32( pCol2, L, (float32_t *) S->pTwiddle, 2U);
+    xtensa_radix8_butterfly_f32(pCol2, L, (float32_t *) S->pTwiddle, 2U);
 }
 
-void xtensa_cfft_radix8by4_f32( xtensa_cfft_instance_f32 * S, float32_t * p1)
-{
-    uint32_t    L  = S->fftLen >> 1;
-    float32_t * pCol1, *pCol2, *pCol3, *pCol4, *pEnd1, *pEnd2, *pEnd3, *pEnd4;
+void xtensa_cfft_radix8by4_f32(xtensa_cfft_instance_f32 *S, float32_t *p1) {
+    uint32_t L = S->fftLen >> 1;
+    float32_t *pCol1, *pCol2, *pCol3, *pCol4, *pEnd1, *pEnd2, *pEnd3, *pEnd4;
     const float32_t *tw2, *tw3, *tw4;
-    float32_t * p2 = p1 + L;
-    float32_t * p3 = p2 + L;
-    float32_t * p4 = p3 + L;
+    float32_t *p2 = p1 + L;
+    float32_t *p3 = p2 + L;
+    float32_t *p4 = p3 + L;
     float32_t t2[4], t3[4], t4[4], twR, twI;
     float32_t p1ap3_0, p1sp3_0, p1ap3_1, p1sp3_1;
     float32_t m0, m1, m2, m3;
@@ -367,8 +364,7 @@ void xtensa_cfft_radix8by4_f32( xtensa_cfft_instance_f32 * S, float32_t * p1)
     tw3 += twMod3;
     tw4 += twMod4;
 
-    for (l = (L - 2) >> 1; l > 0; l-- )
-    {
+    for (l = (L - 2) >> 1; l > 0; l--) {
         // TOP
         p1ap3_0 = p1[0] + p3[0];
         p1sp3_0 = p1[0] - p3[0];
@@ -393,13 +389,13 @@ void xtensa_cfft_radix8by4_f32( xtensa_cfft_instance_f32 * S, float32_t * p1)
         p1ap3_0 = pEnd1[0] + pEnd3[0];
         p1sp3_0 = pEnd1[0] - pEnd3[0];
         // col 2
-        t2[2] = pEnd2[0]  - pEnd4[0] + p1sp3_1;
+        t2[2] = pEnd2[0] - pEnd4[0] + p1sp3_1;
         t2[3] = pEnd1[0] - pEnd3[0] - pEnd2[-1] + pEnd4[-1];
         // col 3
         t3[2] = p1ap3_1 - pEnd2[-1] - pEnd4[-1];
-        t3[3] = p1ap3_0 - pEnd2[0]  - pEnd4[0];
+        t3[3] = p1ap3_0 - pEnd2[0] - pEnd4[0];
         // col 4
-        t4[2] = pEnd2[0]  - pEnd4[0]  - p1sp3_1;
+        t4[2] = pEnd2[0] - pEnd4[0] - p1sp3_1;
         t4[3] = pEnd4[-1] - pEnd2[-1] - p1sp3_0;
         // col 1 - Bottom
         *pEnd1-- = p1ap3_0 + pEnd2[0] + pEnd4[0];
@@ -535,13 +531,13 @@ void xtensa_cfft_radix8by4_f32( xtensa_cfft_instance_f32 * S, float32_t * p1)
     *p4++ = m2 - m3;
 
     // first col
-    xtensa_radix8_butterfly_f32( pCol1, L, (float32_t *) S->pTwiddle, 4U);
+    xtensa_radix8_butterfly_f32(pCol1, L, (float32_t *) S->pTwiddle, 4U);
     // second col
-    xtensa_radix8_butterfly_f32( pCol2, L, (float32_t *) S->pTwiddle, 4U);
+    xtensa_radix8_butterfly_f32(pCol2, L, (float32_t *) S->pTwiddle, 4U);
     // third col
-    xtensa_radix8_butterfly_f32( pCol3, L, (float32_t *) S->pTwiddle, 4U);
+    xtensa_radix8_butterfly_f32(pCol3, L, (float32_t *) S->pTwiddle, 4U);
     // fourth col
-    xtensa_radix8_butterfly_f32( pCol4, L, (float32_t *) S->pTwiddle, 4U);
+    xtensa_radix8_butterfly_f32(pCol4, L, (float32_t *) S->pTwiddle, 4U);
 }
 
 /**
@@ -560,56 +556,50 @@ void xtensa_cfft_radix8by4_f32( xtensa_cfft_instance_f32 * S, float32_t * p1)
 */
 
 void xtensa_cfft_f32(
-    const xtensa_cfft_instance_f32 * S,
-    float32_t * p1,
-    uint8_t ifftFlag,
-    uint8_t bitReverseFlag)
-{
-    uint32_t  L = S->fftLen, l;
-    float32_t invL, * pSrc;
+        const xtensa_cfft_instance_f32 *S,
+        float32_t *p1,
+        uint8_t ifftFlag,
+        uint8_t bitReverseFlag) {
+    uint32_t L = S->fftLen, l;
+    float32_t invL, *pSrc;
 
-    if (ifftFlag == 1U)
-    {
+    if (ifftFlag == 1U) {
         /*  Conjugate input data  */
         pSrc = p1 + 1;
-        for(l=0; l<L; l++)
-        {
+        for (l = 0; l < L; l++) {
             *pSrc = -*pSrc;
             pSrc += 2;
         }
     }
 
-    switch (L)
-    {
-    case 16:
-    case 128:
-    case 1024:
-        xtensa_cfft_radix8by2_f32  ( (xtensa_cfft_instance_f32 *) S, p1);
-        break;
-    case 32:
-    case 256:
-    case 2048:
-        xtensa_cfft_radix8by4_f32  ( (xtensa_cfft_instance_f32 *) S, p1);
-        break;
-    case 64:
-    case 512:
-    case 4096:
-        xtensa_radix8_butterfly_f32( p1, L, (float32_t *) S->pTwiddle, 1);
-        break;
+    switch (L) {
+        case 16:
+        case 128:
+        case 1024:
+            xtensa_cfft_radix8by2_f32((xtensa_cfft_instance_f32 *) S, p1);
+            break;
+        case 32:
+        case 256:
+        case 2048:
+            xtensa_cfft_radix8by4_f32((xtensa_cfft_instance_f32 *) S, p1);
+            break;
+        case 64:
+        case 512:
+        case 4096:
+            xtensa_radix8_butterfly_f32(p1, L, (float32_t *) S->pTwiddle, 1);
+            break;
     }
 
-    if ( bitReverseFlag )
-        xtensa_bitreversal_32((uint32_t*)p1,S->bitRevLength,S->pBitRevTable);
+    if (bitReverseFlag)
+        xtensa_bitreversal_32((uint32_t *) p1, S->bitRevLength, S->pBitRevTable);
 
-    if (ifftFlag == 1U)
-    {
-        invL = 1.0f/(float32_t)L;
+    if (ifftFlag == 1U) {
+        invL = 1.0f / (float32_t) L;
         /*  Conjugate and scale output data */
         pSrc = p1;
-        for(l=0; l<L; l++)
-        {
-            *pSrc++ *=   invL ;
-            *pSrc  = -(*pSrc) * invL;
+        for (l = 0; l < L; l++) {
+            *pSrc++ *= invL;
+            *pSrc = -(*pSrc) * invL;
             pSrc++;
         }
     }

@@ -59,59 +59,57 @@
  */
 
 xtensa_status xtensa_mat_add_f32(
-  const xtensa_matrix_instance_f32 * pSrcA,
-  const xtensa_matrix_instance_f32 * pSrcB,
-  xtensa_matrix_instance_f32 * pDst)
-{
-  float32_t *pIn1 = pSrcA->pData;                /* input data matrix pointer A  */
-  float32_t *pIn2 = pSrcB->pData;                /* input data matrix pointer B  */
-  float32_t *pOut = pDst->pData;                 /* output data matrix pointer   */
+        const xtensa_matrix_instance_f32 *pSrcA,
+        const xtensa_matrix_instance_f32 *pSrcB,
+        xtensa_matrix_instance_f32 *pDst) {
+    float32_t *pIn1 = pSrcA->pData;                /* input data matrix pointer A  */
+    float32_t *pIn2 = pSrcB->pData;                /* input data matrix pointer B  */
+    float32_t *pOut = pDst->pData;                 /* output data matrix pointer   */
 
 
 
-  uint32_t numSamples;                           /* total number of elements in the matrix  */
-  uint32_t blkCnt;                               /* loop counters */
-  xtensa_status status;                             /* status of matrix addition */
+    uint32_t numSamples;                           /* total number of elements in the matrix  */
+    uint32_t blkCnt;                               /* loop counters */
+    xtensa_status status;                             /* status of matrix addition */
 
 #ifdef XTENSA_MATH_MATRIX_CHECK
-  /* Check for matrix mismatch condition */
-  if ((pSrcA->numRows != pSrcB->numRows) ||
-     (pSrcA->numCols != pSrcB->numCols) ||
-     (pSrcA->numRows != pDst->numRows) || (pSrcA->numCols != pDst->numCols))
-  {
-    /* Set status as XTENSA_MATH_SIZE_MISMATCH */
-    status = XTENSA_MATH_SIZE_MISMATCH;
-  }
-  else
-#endif
-  {
-
-    /* Total number of samples in the input matrix */
-    numSamples = (uint32_t) pSrcA->numRows * pSrcA->numCols;
-
-
-
-    /* Initialize blkCnt with number of samples */
-    blkCnt = numSamples;
-
-
-    while (blkCnt > 0U)
+    /* Check for matrix mismatch condition */
+    if ((pSrcA->numRows != pSrcB->numRows) ||
+       (pSrcA->numCols != pSrcB->numCols) ||
+       (pSrcA->numRows != pDst->numRows) || (pSrcA->numCols != pDst->numCols))
     {
-      /* C(m,n) = A(m,n) + B(m,n) */
-      /* Add and then store the results in the destination buffer. */
-      *pOut++ = (*pIn1++) + (*pIn2++);
+      /* Set status as XTENSA_MATH_SIZE_MISMATCH */
+      status = XTENSA_MATH_SIZE_MISMATCH;
+    }
+    else
+#endif
+    {
 
-      /* Decrement the loop counter */
-      blkCnt--;
+        /* Total number of samples in the input matrix */
+        numSamples = (uint32_t) pSrcA->numRows * pSrcA->numCols;
+
+
+
+        /* Initialize blkCnt with number of samples */
+        blkCnt = numSamples;
+
+
+        while (blkCnt > 0U) {
+            /* C(m,n) = A(m,n) + B(m,n) */
+            /* Add and then store the results in the destination buffer. */
+            *pOut++ = (*pIn1++) + (*pIn2++);
+
+            /* Decrement the loop counter */
+            blkCnt--;
+        }
+
+        /* set status as XTENSA_MATH_SUCCESS */
+        status = XTENSA_MATH_SUCCESS;
+
     }
 
-    /* set status as XTENSA_MATH_SUCCESS */
-    status = XTENSA_MATH_SUCCESS;
-
-  }
-
-  /* Return to application */
-  return (status);
+    /* Return to application */
+    return (status);
 }
 
 /**

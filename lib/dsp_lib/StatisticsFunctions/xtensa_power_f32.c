@@ -62,34 +62,31 @@
 
 
 void xtensa_power_f32(
-  float32_t * pSrc,
-  uint32_t blockSize,
-  float32_t * pResult)
-{
-  float32_t sum = 0.0f;                          /* accumulator */
-  float32_t in;                                  /* Temporary variable to store input value */
-  uint32_t blkCnt;                               /* loop counter */
+        float32_t *pSrc,
+        uint32_t blockSize,
+        float32_t *pResult) {
+    float32_t sum = 0.0f;                          /* accumulator */
+    float32_t in;                                  /* Temporary variable to store input value */
+    uint32_t blkCnt;                               /* loop counter */
 
 
 
-  /* Loop over blockSize number of values */
-  blkCnt = blockSize;
+    /* Loop over blockSize number of values */
+    blkCnt = blockSize;
 
 
+    while (blkCnt > 0U) {
+        /* C = A[0] * A[0] + A[1] * A[1] + A[2] * A[2] + ... + A[blockSize-1] * A[blockSize-1] */
+        /* compute power and then store the result in a temporary variable, sum. */
+        in = *pSrc++;
+        sum += in * in;
 
-  while (blkCnt > 0U)
-  {
-    /* C = A[0] * A[0] + A[1] * A[1] + A[2] * A[2] + ... + A[blockSize-1] * A[blockSize-1] */
-    /* compute power and then store the result in a temporary variable, sum. */
-    in = *pSrc++;
-    sum += in * in;
+        /* Decrement the loop counter */
+        blkCnt--;
+    }
 
-    /* Decrement the loop counter */
-    blkCnt--;
-  }
-
-  /* Store the result to the destination */
-  *pResult = sum;
+    /* Store the result to the destination */
+    *pResult = sum;
 }
 
 /**

@@ -167,115 +167,110 @@
  */
 
 void xtensa_lms_f32(
-  const xtensa_lms_instance_f32 * S,
-  float32_t * pSrc,
-  float32_t * pRef,
-  float32_t * pOut,
-  float32_t * pErr,
-  uint32_t blockSize)
-{
-  float32_t *pState = S->pState;                 /* State pointer */
-  float32_t *pCoeffs = S->pCoeffs;               /* Coefficient pointer */
-  float32_t *pStateCurnt;                        /* Points to the current sample of the state */
-  float32_t *px, *pb;                            /* Temporary pointers for state and coefficient buffers */
-  float32_t mu = S->mu;                          /* Adaptive factor */
-  uint32_t numTaps = S->numTaps;                 /* Number of filter coefficients in the filter */
-  uint32_t tapCnt, blkCnt;                       /* Loop counters */
-  float32_t sum, e, d;                           /* accumulator, error, reference data sample */
-  float32_t w = 0.0f;                            /* weight factor */
+        const xtensa_lms_instance_f32 *S,
+        float32_t *pSrc,
+        float32_t *pRef,
+        float32_t *pOut,
+        float32_t *pErr,
+        uint32_t blockSize) {
+    float32_t *pState = S->pState;                 /* State pointer */
+    float32_t *pCoeffs = S->pCoeffs;               /* Coefficient pointer */
+    float32_t *pStateCurnt;                        /* Points to the current sample of the state */
+    float32_t *px, *pb;                            /* Temporary pointers for state and coefficient buffers */
+    float32_t mu = S->mu;                          /* Adaptive factor */
+    uint32_t numTaps = S->numTaps;                 /* Number of filter coefficients in the filter */
+    uint32_t tapCnt, blkCnt;                       /* Loop counters */
+    float32_t sum, e, d;                           /* accumulator, error, reference data sample */
+    float32_t w = 0.0f;                            /* weight factor */
 
-  e = 0.0f;
-  d = 0.0f;
+    e = 0.0f;
+    d = 0.0f;
 
-  /* S->pState points to state array which contains previous frame (numTaps - 1) samples */
-  /* pStateCurnt points to the location where the new input data should be written */
-  pStateCurnt = &(S->pState[(numTaps - 1U)]);
+    /* S->pState points to state array which contains previous frame (numTaps - 1) samples */
+    /* pStateCurnt points to the location where the new input data should be written */
+    pStateCurnt = &(S->pState[(numTaps - 1U)]);
 
-  blkCnt = blockSize;
+    blkCnt = blockSize;
 
 
-  while (blkCnt > 0U)
-  {
-    /* Copy the new input sample into the state buffer */
-    *pStateCurnt++ = *pSrc++;
+    while (blkCnt > 0U) {
+        /* Copy the new input sample into the state buffer */
+        *pStateCurnt++ = *pSrc++;
 
-    /* Initialize pState pointer */
-    px = pState;
+        /* Initialize pState pointer */
+        px = pState;
 
-    /* Initialize pCoeffs pointer */
-    pb = pCoeffs;
+        /* Initialize pCoeffs pointer */
+        pb = pCoeffs;
 
-    /* Set the accumulator to zero */
-    sum = 0.0f;
+        /* Set the accumulator to zero */
+        sum = 0.0f;
 
-    /* Loop over numTaps number of values */
-    tapCnt = numTaps;
+        /* Loop over numTaps number of values */
+        tapCnt = numTaps;
 
-    while (tapCnt > 0U)
-    {
-      /* Perform the multiply-accumulate */
-      sum += (*px++) * (*pb++);
+        while (tapCnt > 0U) {
+            /* Perform the multiply-accumulate */
+            sum += (*px++) * (*pb++);
 
-      /* Decrement the loop counter */
-      tapCnt--;
+            /* Decrement the loop counter */
+            tapCnt--;
+        }
+
+        /* The result is stored in the destination buffer. */
+        *pOut++ = sum;
+
+        /* Compute and store error */
+        d = (float32_t) (*pRef++);
+        e = d - sum;
+        *pErr++ = e;
+
+        /* Weighting factor for the LMS version */
+        w = e * mu;
+
+        /* Initialize pState pointer */
+        px = pState;
+
+        /* Initialize pCoeffs pointer */
+        pb = pCoeffs;
+
+        /* Loop over numTaps number of values */
+        tapCnt = numTaps;
+
+        while (tapCnt > 0U) {
+            /* Perform the multiply-accumulate */
+            *pb = *pb + (w * (*px++));
+            pb++;
+
+            /* Decrement the loop counter */
+            tapCnt--;
+        }
+
+        /* Advance state pointer by 1 for the next sample */
+        pState = pState + 1;
+
+        /* Decrement the loop counter */
+        blkCnt--;
     }
 
-    /* The result is stored in the destination buffer. */
-    *pOut++ = sum;
 
-    /* Compute and store error */
-    d = (float32_t) (*pRef++);
-    e = d - sum;
-    *pErr++ = e;
+    /* Processing is complete. Now copy the last numTaps - 1 samples to the
+     * start of the state buffer. This prepares the state buffer for the
+     * next function call. */
 
-    /* Weighting factor for the LMS version */
-    w = e * mu;
+    /* Points to the start of the pState buffer */
+    pStateCurnt = S->pState;
 
-    /* Initialize pState pointer */
-    px = pState;
+    /*  Copy (numTaps - 1U) samples  */
+    tapCnt = (numTaps - 1U);
 
-    /* Initialize pCoeffs pointer */
-    pb = pCoeffs;
+    /* Copy the data */
+    while (tapCnt > 0U) {
+        *pStateCurnt++ = *pState++;
 
-    /* Loop over numTaps number of values */
-    tapCnt = numTaps;
-
-    while (tapCnt > 0U)
-    {
-      /* Perform the multiply-accumulate */
-      *pb = *pb + (w * (*px++));
-      pb++;
-
-      /* Decrement the loop counter */
-      tapCnt--;
+        /* Decrement the loop counter */
+        tapCnt--;
     }
-
-    /* Advance state pointer by 1 for the next sample */
-    pState = pState + 1;
-
-    /* Decrement the loop counter */
-    blkCnt--;
-  }
-
-
-  /* Processing is complete. Now copy the last numTaps - 1 samples to the
-   * start of the state buffer. This prepares the state buffer for the
-   * next function call. */
-
-  /* Points to the start of the pState buffer */
-  pStateCurnt = S->pState;
-
-  /*  Copy (numTaps - 1U) samples  */
-  tapCnt = (numTaps - 1U);
-
-  /* Copy the data */
-  while (tapCnt > 0U)
-  {
-    *pStateCurnt++ = *pState++;
-
-    /* Decrement the loop counter */
-    tapCnt--;
-  }
 
 
 }

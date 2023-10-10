@@ -63,34 +63,30 @@
  */
 
 void xtensa_var_f32(
-                 float32_t * pSrc,
-                 uint32_t blockSize,
-                 float32_t * pResult)
-{
+        float32_t *pSrc,
+        uint32_t blockSize,
+        float32_t *pResult) {
     float32_t fMean, fValue;
     uint32_t blkCnt;            /* loop counter */
-    float32_t * pInput = pSrc;
+    float32_t *pInput = pSrc;
     float32_t sum = 0.0f;
     float32_t fSum = 0.0f;
-    #if defined(ARM_MATH_DSP)
+#if defined(ARM_MATH_DSP)
     float32_t in1, in2, in3, in4;
-    #endif
+#endif
 
-    if (blockSize <= 1U)
-    {
+    if (blockSize <= 1U) {
         *pResult = 0;
         return;
     }
 
-    
 
-        /* Loop over blockSize number of values */
-        blkCnt = blockSize;
 
-    
+    /* Loop over blockSize number of values */
+    blkCnt = blockSize;
 
-    while (blkCnt > 0U)
-    {
+
+    while (blkCnt > 0U) {
         /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) */
         sum += *pInput++;
 
@@ -103,14 +99,13 @@ void xtensa_var_f32(
 
     pInput = pSrc;
 
-    
+
 
     /* Loop over blockSize number of values */
     blkCnt = blockSize;
-    
 
-    while (blkCnt > 0U)
-    {
+
+    while (blkCnt > 0U) {
         fValue = *pInput++ - fMean;
         fSum += fValue * fValue;
 
@@ -119,7 +114,7 @@ void xtensa_var_f32(
     }
 
     /* Variance */
-    *pResult = fSum / (float32_t)(blockSize - 1.0f);
+    *pResult = fSum / (float32_t) (blockSize - 1.0f);
 }
 
 /**

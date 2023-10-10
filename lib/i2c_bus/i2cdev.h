@@ -21,8 +21,8 @@
  * i2cdev.h - Functions to write to I2C devices
  */
 
-#ifndef __I2CDEV_H__
-#define __I2CDEV_H__
+#ifndef I2C_DEV_H_
+#define I2C_DEV_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -31,7 +31,7 @@
 
 #define I2CDEV_NO_MEM_ADDR  0xFF
 
-typedef I2cDrv    I2C_Dev;
+typedef I2cDrv I2C_Dev;
 #define I2C1_DEV  &deckBus
 #define I2C0_DEV  &sensorsBus
 
@@ -203,4 +203,4 @@ bool i2cdevWriteBit(I2C_Dev *dev, uint8_t devAddress, uint8_t memAddress,
 bool i2cdevWriteBits(I2C_Dev *dev, uint8_t devAddress, uint8_t memAddress,
                      uint8_t bitStart, uint8_t length, uint8_t data);
 
-#endif //__I2CDEV_H__
+#endif //I2C_DEV_H_

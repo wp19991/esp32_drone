@@ -62,33 +62,31 @@
  */
 
 void xtensa_rms_f32(
-  float32_t * pSrc,
-  uint32_t blockSize,
-  float32_t * pResult)
-{
-  float32_t sum = 0.0f;                          /* Accumulator */
-  float32_t in;                                  /* Tempoprary variable to store input value */
-  uint32_t blkCnt;                               /* loop counter */
+        float32_t *pSrc,
+        uint32_t blockSize,
+        float32_t *pResult) {
+    float32_t sum = 0.0f;                          /* Accumulator */
+    float32_t in;                                  /* Tempoprary variable to store input value */
+    uint32_t blkCnt;                               /* loop counter */
 
 
 
-  /* Loop over blockSize number of values */
-  blkCnt = blockSize;
+    /* Loop over blockSize number of values */
+    blkCnt = blockSize;
 
 
-  while (blkCnt > 0U)
-  {
-    /* C = A[0] * A[0] + A[1] * A[1] + A[2] * A[2] + ... + A[blockSize-1] * A[blockSize-1] */
-    /* Compute sum of the squares and then store the results in a temporary variable, sum  */
-    in = *pSrc++;
-    sum += in * in;
+    while (blkCnt > 0U) {
+        /* C = A[0] * A[0] + A[1] * A[1] + A[2] * A[2] + ... + A[blockSize-1] * A[blockSize-1] */
+        /* Compute sum of the squares and then store the results in a temporary variable, sum  */
+        in = *pSrc++;
+        sum += in * in;
 
-    /* Decrement the loop counter */
-    blkCnt--;
-  }
+        /* Decrement the loop counter */
+        blkCnt--;
+    }
 
-  /* Compute Rms and store the result in the destination */
-  xtensa_sqrt_f32(sum / (float32_t) blockSize, pResult);
+    /* Compute Rms and store the result in the destination */
+    xtensa_sqrt_f32(sum / (float32_t) blockSize, pResult);
 }
 
 /**

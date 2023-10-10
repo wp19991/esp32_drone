@@ -31,31 +31,31 @@
 #include "driver/adc.h"
 
 #ifndef CRITICAL_LOW_VOLTAGE
-  #define PM_BAT_CRITICAL_LOW_VOLTAGE   3.0f
+#define PM_BAT_CRITICAL_LOW_VOLTAGE   3.0f
 #else
-  #define PM_BAT_CRITICAL_LOW_VOLTAGE   CRITICAL_LOW_VOLTAGE
+#define PM_BAT_CRITICAL_LOW_VOLTAGE   CRITICAL_LOW_VOLTAGE
 #endif
 #ifndef CRITICAL_LOW_TIMEOUT
-  #define PM_BAT_CRITICAL_LOW_TIMEOUT   M2T(1000 * 5) // 5 sec default
+#define PM_BAT_CRITICAL_LOW_TIMEOUT   M2T(1000 * 5) // 5 sec default
 #else
-  #define PM_BAT_CRITICAL_LOW_TIMEOUT   CRITICAL_LOW_TIMEOUT
+#define PM_BAT_CRITICAL_LOW_TIMEOUT   CRITICAL_LOW_TIMEOUT
 #endif
 
 #ifndef LOW_VOLTAGE
-  #define PM_BAT_LOW_VOLTAGE   3.2f
+#define PM_BAT_LOW_VOLTAGE   3.2f
 #else
-  #define PM_BAT_LOW_VOLTAGE   LOW_VOLTAGE
+#define PM_BAT_LOW_VOLTAGE   LOW_VOLTAGE
 #endif
 #ifndef LOW_TIMEOUT
-  #define PM_BAT_LOW_TIMEOUT   M2T(1000 * 5) // 5 sec default
+#define PM_BAT_LOW_TIMEOUT   M2T(1000 * 5) // 5 sec default
 #else
-  #define PM_BAT_LOW_TIMEOUT   LOW_TIMEOUT
+#define PM_BAT_LOW_TIMEOUT   LOW_TIMEOUT
 #endif
 
 #ifndef SYSTEM_SHUTDOWN_TIMEOUT
-  #define PM_SYSTEM_SHUTDOWN_TIMEOUT    M2T(1000 * 60 * 5) // 5 min default
+#define PM_SYSTEM_SHUTDOWN_TIMEOUT    M2T(1000 * 60 * 5) // 5 min default
 #else
-  #define PM_SYSTEM_SHUTDOWN_TIMEOUT    M2T(1000 * 60 * SYSTEM_SHUTDOWN_TIMEOUT)
+#define PM_SYSTEM_SHUTDOWN_TIMEOUT    M2T(1000 * 60 * SYSTEM_SHUTDOWN_TIMEOUT)
 #endif
 
 #define PM_BAT_DIVIDER                3.0f
@@ -83,28 +83,25 @@
 #define  PM_ADC1_PIN 2
 
 
-typedef enum
-{
-  battery,
-  charging,
-  charged,
-  lowPower,
-  shutDown,
+typedef enum {
+    battery,
+    charging,
+    charged,
+    lowPower,
+    shutDown,
 } PMStates;
 
-typedef enum
-{
-  charge100mA,
-  charge300mA,
-  charge500mA,
-  chargeMax,
+typedef enum {
+    charge100mA,
+    charge300mA,
+    charge500mA,
+    chargeMax,
 } PMChargeStates;
 
-typedef enum
-{
-  USBNone,
-  USB500mA,
-  USBWallAdapter,
+typedef enum {
+    USBNone,
+    USB500mA,
+    USBWallAdapter,
 } PMUSBPower;
 
 void pmInit(void);
@@ -180,5 +177,7 @@ void pmEnableExtBatteryCurrMeasuring(uint8_t pin, float ampPerVolt);
  * Measure an external current.
  */
 float pmMeasureExtBatteryCurrent(void);
+
 void pmDeInit(void);
+
 #endif /* PM_H_ */

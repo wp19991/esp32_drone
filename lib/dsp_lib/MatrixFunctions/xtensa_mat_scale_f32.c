@@ -66,52 +66,50 @@
  */
 
 xtensa_status xtensa_mat_scale_f32(
-  const xtensa_matrix_instance_f32 * pSrc,
-  float32_t scale,
-  xtensa_matrix_instance_f32 * pDst)
-{
-  float32_t *pIn = pSrc->pData;                  /* input data matrix pointer */
-  float32_t *pOut = pDst->pData;                 /* output data matrix pointer */
-  uint32_t numSamples;                           /* total number of elements in the matrix */
-  uint32_t blkCnt;                               /* loop counters */
-  xtensa_status status;                             /* status of matrix scaling     */
+        const xtensa_matrix_instance_f32 *pSrc,
+        float32_t scale,
+        xtensa_matrix_instance_f32 *pDst) {
+    float32_t *pIn = pSrc->pData;                  /* input data matrix pointer */
+    float32_t *pOut = pDst->pData;                 /* output data matrix pointer */
+    uint32_t numSamples;                           /* total number of elements in the matrix */
+    uint32_t blkCnt;                               /* loop counters */
+    xtensa_status status;                             /* status of matrix scaling     */
 
 
 
 #ifdef XTENSA_MATH_MATRIX_CHECK
-  /* Check for matrix mismatch condition */
-  if ((pSrc->numRows != pDst->numRows) || (pSrc->numCols != pDst->numCols))
-  {
-    /* Set status as XTENSA_MATH_SIZE_MISMATCH */
-    status = XTENSA_MATH_SIZE_MISMATCH;
-  }
-  else
-#endif /*    #ifdef XTENSA_MATH_MATRIX_CHECK    */
-  {
-    /* Total number of samples in the input matrix */
-    numSamples = (uint32_t) pSrc->numRows * pSrc->numCols;
-
-
-    /* Initialize blkCnt with number of samples */
-    blkCnt = numSamples;
-
-
-    while (blkCnt > 0U)
+    /* Check for matrix mismatch condition */
+    if ((pSrc->numRows != pDst->numRows) || (pSrc->numCols != pDst->numCols))
     {
-      /* C(m,n) = A(m,n) * scale */
-      /* The results are stored in the destination buffer. */
-      *pOut++ = (*pIn++) * scale;
+      /* Set status as XTENSA_MATH_SIZE_MISMATCH */
+      status = XTENSA_MATH_SIZE_MISMATCH;
+    }
+    else
+#endif /*    #ifdef XTENSA_MATH_MATRIX_CHECK    */
+    {
+        /* Total number of samples in the input matrix */
+        numSamples = (uint32_t) pSrc->numRows * pSrc->numCols;
 
-      /* Decrement the loop counter */
-      blkCnt--;
+
+        /* Initialize blkCnt with number of samples */
+        blkCnt = numSamples;
+
+
+        while (blkCnt > 0U) {
+            /* C(m,n) = A(m,n) * scale */
+            /* The results are stored in the destination buffer. */
+            *pOut++ = (*pIn++) * scale;
+
+            /* Decrement the loop counter */
+            blkCnt--;
+        }
+
+        /* Set status as XTENSA_MATH_SUCCESS */
+        status = XTENSA_MATH_SUCCESS;
     }
 
-    /* Set status as XTENSA_MATH_SUCCESS */
-    status = XTENSA_MATH_SUCCESS;
-  }
-
-  /* Return to application */
-  return (status);
+    /* Return to application */
+    return (status);
 }
 
 /**

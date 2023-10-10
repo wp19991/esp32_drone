@@ -55,69 +55,66 @@
 
 
 xtensa_status xtensa_mat_trans_f32(
-  const xtensa_matrix_instance_f32 * pSrc,
-  xtensa_matrix_instance_f32 * pDst)
-{
-  float32_t *pIn = pSrc->pData;                  /* input data matrix pointer */
-  float32_t *pOut = pDst->pData;                 /* output data matrix pointer */
-  float32_t *px;                                 /* Temporary output data matrix pointer */
-  uint16_t nRows = pSrc->numRows;                /* number of rows */
-  uint16_t nColumns = pSrc->numCols;             /* number of columns */
+        const xtensa_matrix_instance_f32 *pSrc,
+        xtensa_matrix_instance_f32 *pDst) {
+    float32_t *pIn = pSrc->pData;                  /* input data matrix pointer */
+    float32_t *pOut = pDst->pData;                 /* output data matrix pointer */
+    float32_t *px;                                 /* Temporary output data matrix pointer */
+    uint16_t nRows = pSrc->numRows;                /* number of rows */
+    uint16_t nColumns = pSrc->numCols;             /* number of columns */
 
 
 
-  uint16_t col, i = 0U, row = nRows;             /* loop counters */
-  xtensa_status status;                             /* status of matrix transpose  */
+    uint16_t col, i = 0U, row = nRows;             /* loop counters */
+    xtensa_status status;                             /* status of matrix transpose  */
 
 
 #ifdef XTENSA_MATH_MATRIX_CHECK
 
-  /* Check for matrix mismatch condition */
-  if ((pSrc->numRows != pDst->numCols) || (pSrc->numCols != pDst->numRows))
-  {
-    /* Set status as XTENSA_MATH_SIZE_MISMATCH */
-    status = XTENSA_MATH_SIZE_MISMATCH;
-  }
-  else
+    /* Check for matrix mismatch condition */
+    if ((pSrc->numRows != pDst->numCols) || (pSrc->numCols != pDst->numRows))
+    {
+      /* Set status as XTENSA_MATH_SIZE_MISMATCH */
+      status = XTENSA_MATH_SIZE_MISMATCH;
+    }
+    else
 #endif /*      #ifdef XTENSA_MATH_MATRIX_CHECK    */
 
-  {
-    /* Matrix transpose by exchanging the rows with columns */
-    /* row loop     */
-    do
     {
-      /* The pointer px is set to starting address of the column being processed */
-      px = pOut + i;
+        /* Matrix transpose by exchanging the rows with columns */
+        /* row loop     */
+        do {
+            /* The pointer px is set to starting address of the column being processed */
+            px = pOut + i;
 
-      /* Initialize column loop counter */
-      col = nColumns;
+            /* Initialize column loop counter */
+            col = nColumns;
 
-      while (col > 0U)
-      {
-        /* Read and store the input element in the destination */
-        *px = *pIn++;
+            while (col > 0U) {
+                /* Read and store the input element in the destination */
+                *px = *pIn++;
 
-        /* Update the pointer px to point to the next row of the transposed matrix */
-        px += nRows;
+                /* Update the pointer px to point to the next row of the transposed matrix */
+                px += nRows;
 
-        /* Decrement the column loop counter */
-        col--;
-      }
+                /* Decrement the column loop counter */
+                col--;
+            }
 
 
-      i++;
+            i++;
 
-      /* Decrement the row loop counter */
-      row--;
+            /* Decrement the row loop counter */
+            row--;
 
-    } while (row > 0U);          /* row loop end  */
+        } while (row > 0U);          /* row loop end  */
 
-    /* Set status as XTENSA_MATH_SUCCESS */
-    status = XTENSA_MATH_SUCCESS;
-  }
+        /* Set status as XTENSA_MATH_SUCCESS */
+        status = XTENSA_MATH_SUCCESS;
+    }
 
-  /* Return to application */
-  return (status);
+    /* Return to application */
+    return (status);
 }
 
 /**

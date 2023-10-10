@@ -22,24 +22,24 @@ typedef enum {
  * Structure used to capture the I2C message details.  The structure is then
  * queued for processing by the I2C ISR.
  */
-typedef struct _I2cMessage {
-    uint32_t         messageLength;		  //< How many bytes of data to send or received.
-    uint8_t          slaveAddress;		  //< The slave address of the device on the I2C bus.
-    uint8_t          nbrOfRetries;      //< The slave address of the device on the I2C bus.
-    I2cDirection     direction;         //< Direction of message
-    I2cStatus        status;            //< i2c status
-    xQueueHandle     clientQueue;       //< Queue to send received messages to.
-    bool             isInternal16bit;   //< Is internal address 16 bit. If false 8 bit.
-    uint16_t         internalAddress;   //< Internal address of device.
-    uint8_t          *buffer;           //< Pointer to the buffer from where data will be read for transmission, or into which received data will be placed.
+typedef struct I2cMessage {
+    uint32_t messageLength;          //< How many bytes of data to send or received.
+    uint8_t slaveAddress;          //< The slave address of the device on the I2C bus.
+    uint8_t nbrOfRetries;      //< The slave address of the device on the I2C bus.
+    I2cDirection direction;         //< Direction of message
+    I2cStatus status;            //< i2c status
+    xQueueHandle clientQueue;       //< Queue to send received messages to.
+    bool isInternal16bit;   //< Is internal address 16 bit. If false 8 bit.
+    uint16_t internalAddress;   //< Internal address of device.
+    uint8_t *buffer;           //< Pointer to the buffer from where data will be read for transmission, or into which received data will be placed.
 } I2cMessage;
 
 typedef struct {
-    i2c_port_t          i2cPort;
-    uint32_t            i2cClockSpeed;
-    uint32_t            gpioSCLPin;
-    uint32_t            gpioSDAPin;
-    gpio_pullup_t       gpioPullup;
+    i2c_port_t i2cPort;
+    uint32_t i2cClockSpeed;
+    uint32_t gpioSCLPin;
+    uint32_t gpioSDAPin;
+    gpio_pullup_t gpioPullup;
 } I2cDef;
 
 typedef struct {
@@ -55,6 +55,7 @@ extern I2cDrv sensorsBus;
  * Initialize i2c peripheral as defined by static I2cDef structs.
  */
 void i2cdrvInit(I2cDrv *i2c);
+
 void i2cDrvDeInit(I2cDrv *i2c);
 /**
  * Send or receive a message over the I2C bus.
@@ -79,10 +80,10 @@ bool i2cdrvMessageTransfer(I2cDrv *i2c, I2cMessage *message);
  * @param buffer        pointer to buffer of send/receive data
  */
 void i2cdrvCreateMessage(I2cMessage *message,
-                         uint8_t  slaveAddress,
-                         I2cDirection  direction,
+                         uint8_t slaveAddress,
+                         I2cDirection direction,
                          uint32_t length,
-                         uint8_t  *buffer);
+                         uint8_t *buffer);
 
 /**
  * Create a message to transfer with internal "reg" address. Will first do a write
@@ -96,12 +97,12 @@ void i2cdrvCreateMessage(I2cMessage *message,
  * @param buffer        pointer to buffer of send/receive data
  */
 void i2cdrvCreateMessageIntAddr(I2cMessage *message,
-                                uint8_t  slaveAddress,
+                                uint8_t slaveAddress,
                                 bool IsInternal16,
                                 uint16_t intAddress,
-                                I2cDirection  direction,
+                                I2cDirection direction,
                                 uint32_t length,
-                                uint8_t  *buffer);
+                                uint8_t *buffer);
 
 #endif
 

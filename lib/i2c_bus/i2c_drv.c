@@ -31,11 +31,9 @@
  */
 
 
-#include <string.h>
 #include <soc/gpio_sig_map.h>
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "mpconfigboard.h"
@@ -50,46 +48,46 @@
 #define I2C_DEFAULT_DECK_CLOCK_SPEED                100000
 
 #include "esp_log.h"
-static const char* TAG = "i2c_drv";
+
+static const char *TAG = "i2c_drv";
 
 static bool isinit_i2cPort[2] = {0, 0};
 
 // Cost definitions of busses
 static const I2cDef sensorBusDef = {
-    .i2cPort            = I2C_NUM_0,
-    .i2cClockSpeed      = I2C_DEFAULT_SENSORS_CLOCK_SPEED,
-    .gpioSCLPin         = MICROPY_HW_SENSOR_I2C_PIN_SCL,
-    .gpioSDAPin         = MICROPY_HW_SENSOR_I2C_PIN_SDA,
-    .gpioPullup         = GPIO_PULLUP_DISABLE,
+        .i2cPort            = I2C_NUM_0,
+        .i2cClockSpeed      = I2C_DEFAULT_SENSORS_CLOCK_SPEED,
+        .gpioSCLPin         = MICROPY_HW_SENSOR_I2C_PIN_SCL,
+        .gpioSDAPin         = MICROPY_HW_SENSOR_I2C_PIN_SDA,
+        .gpioPullup         = GPIO_PULLUP_DISABLE,
 };
 
 I2cDrv sensorsBus = {
-    .def                = &sensorBusDef,
+        .def                = &sensorBusDef,
 };
 
 static const I2cDef deckBusDef = {
-    .i2cPort            = I2C_NUM_1,
-    .i2cClockSpeed      = I2C_DEFAULT_DECK_CLOCK_SPEED,
-    .gpioSCLPin         = MICROPY_HW_DECK_I2C_PIN_SCL,
-    .gpioSDAPin         = MICROPY_HW_DECK_I2C_PIN_SDA,
-    .gpioPullup         = GPIO_PULLUP_ENABLE,
+        .i2cPort            = I2C_NUM_1,
+        .i2cClockSpeed      = I2C_DEFAULT_DECK_CLOCK_SPEED,
+        .gpioSCLPin         = MICROPY_HW_DECK_I2C_PIN_SCL,
+        .gpioSDAPin         = MICROPY_HW_DECK_I2C_PIN_SDA,
+        .gpioPullup         = GPIO_PULLUP_ENABLE,
 };
 
 I2cDrv deckBus = {
-    .def                = &deckBusDef,
+        .def                = &deckBusDef,
 };
 
-static void i2cdrvInitBus(I2cDrv *i2c)
-{
+static void i2cdrvInitBus(I2cDrv *i2c) {
     if (isinit_i2cPort[i2c->def->i2cPort]) {
         return;
     }
 
     i2c_config_t conf = {0};
     conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = i2c->def->gpioSDAPin;
+    conf.sda_io_num = (int) i2c->def->gpioSDAPin;
     conf.sda_pullup_en = i2c->def->gpioPullup;
-    conf.scl_io_num = i2c->def->gpioSCLPin;
+    conf.scl_io_num = (int) i2c->def->gpioSCLPin;
     conf.scl_pullup_en = i2c->def->gpioPullup;
     conf.master.clk_speed = i2c->def->i2cClockSpeed;
     esp_err_t err = i2c_param_config(i2c->def->i2cPort, &conf);
@@ -106,28 +104,26 @@ static void i2cdrvInitBus(I2cDrv *i2c)
 
 //-----------------------------------------------------------
 
-void i2cdrvInit(I2cDrv *i2c)
-{
+void i2cdrvInit(I2cDrv *i2c) {
     i2cdrvInitBus(i2c);
 }
 
-void i2cDrvDeInit(I2cDrv *i2c)
-{
-	if (isinit_i2cPort[i2c->def->i2cPort]) {
-		
-		i2c_driver_delete(i2c->def->i2cPort);
+void i2cDrvDeInit(I2cDrv *i2c) {
+    if (isinit_i2cPort[i2c->def->i2cPort]) {
+
+        i2c_driver_delete(i2c->def->i2cPort);
 
 //		gpio_pad_select_gpio(i2c->def->gpioSDAPin);
         gpio_reset_pin(i2c->def->gpioSDAPin);
         esp_rom_gpio_connect_out_signal(i2c->def->gpioSDAPin, SIG_GPIO_OUT_IDX, false, false);
-		gpio_set_direction(i2c->def->gpioSDAPin, GPIO_MODE_INPUT);
+        gpio_set_direction(i2c->def->gpioSDAPin, GPIO_MODE_INPUT);
 
         gpio_reset_pin(i2c->def->gpioSCLPin);
         esp_rom_gpio_connect_out_signal(i2c->def->gpioSCLPin, SIG_GPIO_OUT_IDX, false, false);
-		gpio_set_direction(i2c->def->gpioSCLPin, GPIO_MODE_INPUT);
-		
-		vSemaphoreDelete(i2c->isBusFreeMutex);
-		isinit_i2cPort[i2c->def->i2cPort] = false;
+        gpio_set_direction(i2c->def->gpioSCLPin, GPIO_MODE_INPUT);
+
+        vSemaphoreDelete(i2c->isBusFreeMutex);
+        isinit_i2cPort[i2c->def->i2cPort] = false;
 
     }
 

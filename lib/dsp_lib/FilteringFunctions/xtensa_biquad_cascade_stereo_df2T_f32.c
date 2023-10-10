@@ -138,11 +138,10 @@
 */
 
 void xtensa_biquad_cascade_stereo_df2T_f32(
-const xtensa_biquad_cascade_stereo_df2T_instance_f32 * S,
-float32_t * pSrc,
-float32_t * pDst,
-uint32_t blockSize)
-{
+        const xtensa_biquad_cascade_stereo_df2T_instance_f32 *S,
+        float32_t *pSrc,
+        float32_t *pDst,
+        uint32_t blockSize) {
 
     float32_t *pIn = pSrc;                         /*  source pointer            */
     float32_t *pOut = pDst;                        /*  destination pointer       */
@@ -155,8 +154,7 @@ uint32_t blockSize)
     uint32_t sample, stage = S->numStages;         /*  loop counters             */
 
 
-    do
-    {
+    do {
         /* Reading the coefficients */
         b0 = *pCoeffs++;
         b1 = *pCoeffs++;
@@ -173,8 +171,7 @@ uint32_t blockSize)
 
         sample = blockSize;
 
-        while (sample > 0U)
-        {
+        while (sample > 0U) {
             /* Read the input */
             Xn1a = *pIn++; //Channel a
             Xn1b = *pIn++; //Channel b

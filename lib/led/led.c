@@ -31,19 +31,18 @@
 #include "config.h"
 
 static unsigned int led_pin[] = {
-    [LED_BLUE] = LED_GPIO_BLUE,
-    [LED_GREEN] = LED_GPIO_GREEN,
+        [LED_BLUE] = LED_GPIO_BLUE,
+        [LED_GREEN] = LED_GPIO_GREEN,
 };
 static int led_polarity[] = {
-    [LED_BLUE] = LED_POL_BLUE,
-    [LED_GREEN] = LED_POL_GREEN,
+        [LED_BLUE] = LED_POL_BLUE,
+        [LED_GREEN] = LED_POL_GREEN,
 };
 
 static bool isInit = false;
 
 //Initialize the green led pin as output
-void ledInit()
-{
+void ledInit() {
     int i;
 
     if (isInit) {
@@ -70,11 +69,10 @@ void ledInit()
     isInit = true;
 }
 
-bool ledTest(void)
-{
+bool ledTest(void) {
     ledSet(LED_GREEN, 1);
     vTaskDelay(M2T(250));
-	
+
     ledSet(LED_GREEN, 0);
     vTaskDelay(M2T(250));
     // LED test end
@@ -84,8 +82,7 @@ bool ledTest(void)
     return isInit;
 }
 
-void ledClearAll(void)
-{
+void ledClearAll(void) {
     int i;
 
     for (i = 0; i < LED_NUM; i++) {
@@ -94,8 +91,7 @@ void ledClearAll(void)
     }
 }
 
-void ledSetAll(void)
-{
+void ledSetAll(void) {
     int i;
 
     for (i = 0; i < LED_NUM; i++) {
@@ -103,8 +99,8 @@ void ledSetAll(void)
         ledSet(i, 1);
     }
 }
-void ledSet(led_t led, bool value)
-{
+
+void ledSet(led_t led, bool value) {
     if (led > LED_NUM || led == LED_NUM) {
         return;
     }
@@ -120,20 +116,19 @@ void ledSet(led_t led, bool value)
     }
 }
 
-void ledDeInit(void)
-{
-	ledClearAll();
-	
+void ledDeInit(void) {
+    ledClearAll();
+
     for (int i = 0; i < LED_NUM; i++) {
 //		gpio_pad_select_gpio(led_pin[i]);
         gpio_reset_pin(led_pin[i]);
         esp_rom_gpio_connect_out_signal(led_pin[i], SIG_GPIO_OUT_IDX, false, false);
 
 
-		gpio_set_direction(led_pin[i], GPIO_MODE_INPUT);
+        gpio_set_direction(led_pin[i], GPIO_MODE_INPUT);
     }
 
-	isInit = false;
+    isInit = false;
 }
 
 

@@ -30,14 +30,14 @@
 
 /******** Types ********/
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     uint16_t vref;
     uint16_t val;
-}AdcPair;
+} AdcPair;
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     AdcPair vbat;
-}AdcGroup;
+} AdcGroup;
 
 typedef struct {
     uint16_t vbat;

@@ -64,55 +64,52 @@
  */
 
 void xtensa_std_f32(
-  float32_t * pSrc,
-  uint32_t blockSize,
-  float32_t * pResult)
-{
-  float32_t sum = 0.0f;                          /* Temporary result storage */
-  float32_t sumOfSquares = 0.0f;                 /* Sum of squares */
-  float32_t in;                                  /* input value */
-  uint32_t blkCnt;                               /* loop counter */
+        float32_t *pSrc,
+        uint32_t blockSize,
+        float32_t *pResult) {
+    float32_t sum = 0.0f;                          /* Temporary result storage */
+    float32_t sumOfSquares = 0.0f;                 /* Sum of squares */
+    float32_t in;                                  /* input value */
+    uint32_t blkCnt;                               /* loop counter */
 
-  float32_t squareOfSum;                         /* Square of Sum */
-  float32_t var;                                 /* Temporary varaince storage */
+    float32_t squareOfSum;                         /* Square of Sum */
+    float32_t var;                                 /* Temporary varaince storage */
 
 
-  if (blockSize == 1U)
-  {
-    *pResult = 0;
-    return;
-  }
+    if (blockSize == 1U) {
+        *pResult = 0;
+        return;
+    }
 
 
 
-  /* Loop over blockSize number of values */
-  blkCnt = blockSize;
+    /* Loop over blockSize number of values */
+    blkCnt = blockSize;
 
-  while (blkCnt > 0U)
-  {
-    /* C = (A[0] * A[0] + A[1] * A[1] + ... + A[blockSize-1] * A[blockSize-1]) */
-    /* Compute Sum of squares of the input samples
-     * and then store the result in a temporary variable, sumOfSquares. */
-    in = *pSrc++;
-    sumOfSquares += in * in;
+    while (blkCnt > 0U) {
+        /* C = (A[0] * A[0] + A[1] * A[1] + ... + A[blockSize-1] * A[blockSize-1]) */
+        /* Compute Sum of squares of the input samples
+         * and then store the result in a temporary variable, sumOfSquares. */
+        in = *pSrc++;
+        sumOfSquares += in * in;
 
-    /* C = (A[0] + A[1] + ... + A[blockSize-1]) */
-    /* Compute Sum of the input samples
-     * and then store the result in a temporary variable, sum. */
-    sum += in;
+        /* C = (A[0] + A[1] + ... + A[blockSize-1]) */
+        /* Compute Sum of the input samples
+         * and then store the result in a temporary variable, sum. */
+        sum += in;
 
-    /* Decrement the loop counter */
-    blkCnt--;
-  }
+        /* Decrement the loop counter */
+        blkCnt--;
+    }
 
-  /* Compute the square of sum */
-  squareOfSum = ((sum * sum) / (float32_t) blockSize);
+    /* Compute the square of sum */
+    squareOfSum = ((sum * sum) / (float32_t) blockSize);
 
-  /* Compute the variance */
-  var = ((sumOfSquares - squareOfSum) / (float32_t) (blockSize - 1.0f));
+    /* Compute the variance */
+    var = ((sumOfSquares - squareOfSum) / (float32_t) (blockSize - 1.0f));
 
-  /* Compute standard deviation and then store the result to the destination */
-  xtensa_sqrt_f32(var, pResult);
+    /* Compute standard deviation and then store the result to the destination */
+    xtensa_sqrt_f32(var, pResult);
 
 }
 

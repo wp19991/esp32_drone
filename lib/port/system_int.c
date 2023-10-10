@@ -9,50 +9,49 @@
 #include "ledseq.h"
 #include "motors.h"
 
-static const char* TAG = "system_int";
+static const char *TAG = "system_int";
 
 static bool isInit = 0;
 
-static bool systemTest(void)
-{
-	bool pass = true;
-	
-	pass &= ledseqTest();  //led序列测试
-	pass &= pmTest();
-	//pass &= commTest();
-	pass &= stabilizerTest();
-	
-	return pass;
-}
-//初始化系统
-void systemInit(void)
-{
-	if(isInit) return;
-	ESP_LOGI(TAG, "start systeminit ..");
-	
-	//初始化电源管理
-	ledseqInit();
-	ledseqRun(SYS_LED, seq_alive);
-	configParamInit();//初始化参数
-	motorsInit();
-	pmInit();
-	//初始化传感器
-	sensorsMpu6050Spl06Init();
-	//初始化姿态处理
-	stabilizerInit();
-	systemTest();
-}
-void systemDeInit(void)
-{
-	stabilizerDeInit();
+static bool systemTest(void) {
+    bool pass = true;
 
-	sensorsMpu6050Spl06DeInit();
-	motorsDeInit();
-	pmDeInit();
-	ledseqDeInit();
-	//sensorsI2CdevDeInit();
-	
-	isInit = false;
+    pass &= ledseqTest();  //led序列测试
+    pass &= pmTest();
+    //pass &= commTest();
+    pass &= stabilizerTest();
+
+    return pass;
+}
+
+//初始化系统
+void systemInit(void) {
+    if (isInit) return;
+    ESP_LOGI(TAG, "start systeminit ..");
+
+    //初始化电源管理
+    ledseqInit();
+    ledseqRun(SYS_LED, seq_alive);
+    configParamInit();//初始化参数
+    motorsInit();
+    pmInit();
+    //初始化传感器
+    sensorsMpu6050Spl06Init();
+    //初始化姿态处理
+    stabilizerInit();
+    systemTest();
+}
+
+void systemDeInit(void) {
+    stabilizerDeInit();
+
+    sensorsMpu6050Spl06DeInit();
+    motorsDeInit();
+    pmDeInit();
+    ledseqDeInit();
+    //sensorsI2CdevDeInit();
+
+    isInit = false;
 }
 
 

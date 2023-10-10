@@ -58,7 +58,7 @@
 #define RADIANS_TO_CENTIDEGREES(angle) (((angle) * 100.0f) / RAD)
 #define CENTIDEGREES_TO_RADIANS(angle) (((angle) / 100.0f) * RAD)
 
-#if 0	// compile error
+#if 0    // compile error
 // copied from https://code.google.com/p/cxutil/source/browse/include/cxutil/utility.h#70
 #define _CHOOSE2(binoper, lexpr, lvar, rexpr, rvar)         \
     ( __extension__ ({                                      \
@@ -86,13 +86,12 @@
 #define ABS(x) _ABS_I(x, _CHOOSE_VAR(_abs, __COUNTER__))
 #endif
 
-#define MIN(a, b) 	(((a) < (b)) ? (a) : (b))
-#define MAX(a, b) 	(((a) > (b)) ? (a) : (b))
+#define MIN(a, b)    (((a) < (b)) ? (a) : (b))
+#define MAX(a, b)    (((a) > (b)) ? (a) : (b))
 
-#define ABS(x) 		(((x) < 0) ? (-x) : (x))
+#define ABS(x)        (((x) < 0) ? (-x) : (x))
 
-typedef struct stdev_s
-{
+typedef struct stdev_s {
     float m_oldM, m_newM, m_oldS, m_newS;
     int m_n;
 } stdev_t;
@@ -130,7 +129,7 @@ typedef struct filterWithBufferSample_s {
 typedef struct filterWithBufferState_s {
     uint16_t filter_size;
     uint16_t sample_index;
-    filterWithBufferSample_t * samples;
+    filterWithBufferSample_t *samples;
 } filterWithBufferState_t;
 
 typedef struct {
@@ -138,49 +137,73 @@ typedef struct {
     float XtX[4][4];
 } sensorCalibrationState_t;
 
-void sensorCalibrationResetState(sensorCalibrationState_t * state);
-void sensorCalibrationPushSampleForOffsetCalculation(sensorCalibrationState_t * state, int32_t sample[3]);
-void sensorCalibrationPushSampleForScaleCalculation(sensorCalibrationState_t * state, int axis, int32_t sample[3], int target);
-void sensorCalibrationSolveForOffset(sensorCalibrationState_t * state, float result[3]);
-void sensorCalibrationSolveForScale(sensorCalibrationState_t * state, float result[3]);
+void sensorCalibrationResetState(sensorCalibrationState_t *state);
+
+void sensorCalibrationPushSampleForOffsetCalculation(sensorCalibrationState_t *state, int32_t sample[3]);
+
+void sensorCalibrationPushSampleForScaleCalculation(sensorCalibrationState_t *state, int axis, int32_t sample[3],
+                                                    int target);
+
+void sensorCalibrationSolveForOffset(sensorCalibrationState_t *state, float result[3]);
+
+void sensorCalibrationSolveForScale(sensorCalibrationState_t *state, float result[3]);
 
 int gcd(int num, int denom);
+
 int32_t applyDeadband(int32_t value, int32_t deadband);
+
 float applyDeadbandf(float value, float deadband);
 
 int constrain(int amt, int low, int high);
+
 float constrainf(float amt, float low, float high);
 
 void devClear(stdev_t *dev);
+
 void devPush(stdev_t *dev, float x);
+
 float devVariance(stdev_t *dev);
+
 float devStandardDeviation(stdev_t *dev);
+
 float degreesToRadians(int16_t degrees);
 
 int scaleRange(int x, int srcMin, int srcMax, int destMin, int destMax);
+
 float scaleRangef(float x, float srcMin, float srcMax, float destMin, float destMax);
 
 void normalizeV(struct fp_vector *src, struct fp_vector *dest);
 
 void rotateV(struct fp_vector *v, fp_angles_t *delta);
+
 void buildRotationMatrix(fp_angles_t *delta, float matrix[3][3]);
 
 int32_t wrap_18000(int32_t angle);
+
 int32_t wrap_36000(int32_t angle);
 
-int32_t quickMedianFilter3(int32_t * v);
-int32_t quickMedianFilter5(int32_t * v);
-int32_t quickMedianFilter7(int32_t * v);
-int32_t quickMedianFilter9(int32_t * v);
+int32_t quickMedianFilter3(int32_t *v);
 
-int16_t quickMedianFilter3_16(int16_t * v);
-int16_t quickMedianFilter5_16(int16_t * v);
+int32_t quickMedianFilter5(int32_t *v);
+
+int32_t quickMedianFilter7(int32_t *v);
+
+int32_t quickMedianFilter9(int32_t *v);
+
+int16_t quickMedianFilter3_16(int16_t *v);
+
+int16_t quickMedianFilter5_16(int16_t *v);
 
 #if defined(FAST_MATH) || defined(VERY_FAST_MATH)
+
 float sin_approx(float x);
+
 float cos_approx(float x);
+
 float atan2_approx(float y, float x);
+
 float acos_approx(float x);
+
 #define tan_approx(x)       (sin_approx(x) / cos_approx(x))
 #else
 #define sin_approx(x)       sinf(x)

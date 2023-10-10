@@ -20,8 +20,8 @@
  * Motors.h - Motor driver header file
  *
  */
-#ifndef __MOTORS_H__
-#define __MOTORS_H__
+#ifndef MOTORS_H_
+#define MOTORS_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -32,7 +32,7 @@
 /******** Defines ********/
 
 // CF2 PWM ripple is filtered better at 328kHz. At 168kHz the NCP702 regulator is affected.
-#define CONFIG_TARGET_PYDRONE_S2	1
+#define CONFIG_TARGET_PYDRONE_S2    1
 
 #define MOTORS_PWM_BITS           LEDC_TIMER_8_BIT
 #define MOTORS_PWM_PERIOD         ((1<<MOTORS_PWM_BITS) - 1)
@@ -149,6 +149,7 @@ extern const uint16_t testsound[NBR_OF_MOTORS];
 /*** Public interface ***/
 
 bool pwm_timmer_init();
+
 /**
  * Initialisation. Will set all motors ratio to 0%
  */

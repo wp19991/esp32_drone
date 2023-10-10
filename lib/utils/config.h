@@ -77,15 +77,15 @@
 #define LEDSEQCMD_TASK_PRI      1
 //if task watchdog triggered,KALMAN_TASK_PRI should set lower or set lower flow frequency
 #ifdef TARGET_MCU_ESP32
-  #define KALMAN_TASK_PRI         2
-  #define LOG_TASK_PRI            1
-  #define MEM_TASK_PRI            1
-  #define PARAM_TASK_PRI          1
+#define KALMAN_TASK_PRI         2
+#define LOG_TASK_PRI            1
+#define MEM_TASK_PRI            1
+#define PARAM_TASK_PRI          1
 #else
-  #define KALMAN_TASK_PRI         1
-  #define LOG_TASK_PRI            2
-  #define MEM_TASK_PRI            2
-  #define PARAM_TASK_PRI          2
+#define KALMAN_TASK_PRI         1
+#define LOG_TASK_PRI            2
+#define MEM_TASK_PRI            2
+#define PARAM_TASK_PRI          2
 #endif
 
 #define SYSLINK_TASK_PRI        3
@@ -247,9 +247,6 @@
 #endif
 
 
-
-
-
 #ifndef FALSE
 # define FALSE 0
 #endif
@@ -258,13 +255,13 @@
 # define TRUE 1
 #endif
 
-#define pdFALSE			( ( BaseType_t ) 0 )
-#define pdTRUE			( ( BaseType_t ) 1 )
+#define pdFALSE            ( ( BaseType_t ) 0 )
+#define pdTRUE            ( ( BaseType_t ) 1 )
 
-#define pdPASS			( pdTRUE )
-#define pdFAIL			( pdFALSE )
-#define errQUEUE_EMPTY	( ( BaseType_t ) 0 )
-#define errQUEUE_FULL	( ( BaseType_t ) 0 )
+#define pdPASS            ( pdTRUE )
+#define pdFAIL            ( pdFALSE )
+#define errQUEUE_EMPTY    ( ( BaseType_t ) 0 )
+#define errQUEUE_FULL    ( ( BaseType_t ) 0 )
 
 #define M2T(X) ((unsigned int)(X)/ portTICK_PERIOD_MS) //ms to tick
 #define F2T(X) ((unsigned int)((configTICK_RATE_HZ/(X))))
@@ -275,16 +272,16 @@
 #define T2S(X) ((X) / (float)configTICK_RATE_HZ)
 
 
-#define DEG2RAD		0.017453293f	/* 度转弧度 π/180 */
-#define RAD2DEG		57.29578f		/* 弧度转度 180/π */
+#define DEG2RAD        0.017453293f    /* 度转弧度 π/180 */
+#define RAD2DEG        57.29578f        /* 弧度转度 180/π */
 
 
 #ifdef  USE_FULL_ASSERT
-  #define assert_param(expr) ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__, __LINE__))
-  void assert_failed(uint8_t* file, uint32_t line);
+#define assert_param(expr) ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__, __LINE__))
+void assert_failed(uint8_t* file, uint32_t line);
 #else
-  #define assert_param(expr) ((void)0)
-#endif 
+#define assert_param(expr) ((void)0)
+#endif
 
 
 #endif /* CONFIG_H_ */

@@ -29,17 +29,20 @@
 #include "stabilizer_types.h"
 
 typedef struct {
-  uint32_t m1;
-  uint32_t m2;
-  uint32_t m3;
-  uint32_t m4;
+    uint32_t m1;
+    uint32_t m2;
+    uint32_t m3;
+    uint32_t m4;
 } motorPower_t;
 
 void powerDistributionInit(void);
+
 bool powerDistributionTest(void);
+
 void powerDistribution(const control_t *control);
+
 void powerStop();
 
-void getMotorPWM(motorPower_t* get);
+void getMotorPWM(motorPower_t *get);
 
 #endif //__POWER_DISTRIBUTION_H__

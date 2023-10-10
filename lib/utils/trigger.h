@@ -32,9 +32,9 @@
 
 /* Trigger function type. */
 typedef enum {
-  triggerFuncNone   = 0, /* No trigger function. */
-  triggerFuncIsLE   = 1, /* Increases testCounter if test value is Less than or Equal to threshold value. */
-  triggerFuncIsGE   = 2, /* Increases testCounter if test value is Greater than or Equal to threshold value. */
+    triggerFuncNone = 0, /* No trigger function. */
+    triggerFuncIsLE = 1, /* Increases testCounter if test value is Less than or Equal to threshold value. */
+    triggerFuncIsGE = 2, /* Increases testCounter if test value is Greater than or Equal to threshold value. */
 } triggerFunc_t;
 
 /* Trigger handler function type. */
@@ -60,10 +60,15 @@ typedef struct {
 
 /* Trigger functionality. */
 void triggerInit(trigger_t *trigger, triggerFunc_t func, float threshold, uint32_t triggerCount);
+
 void triggerRegisterHandler(trigger_t *trigger, triggerHandler_t handler, void *handlerArg);
+
 void triggerDeInit(trigger_t *trigger);
+
 void triggerActivate(trigger_t *trigger, bool active);
+
 void triggerReset(trigger_t *trigger);
+
 bool triggerTestValue(trigger_t *trigger, float testValue);
 
 #endif

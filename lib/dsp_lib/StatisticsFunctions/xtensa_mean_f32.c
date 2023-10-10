@@ -60,31 +60,29 @@
  */
 
 void xtensa_mean_f32(
-  float32_t * pSrc,
-  uint32_t blockSize,
-  float32_t * pResult)
-{
-  float32_t sum = 0.0f;                          /* Temporary result storage */
-  uint32_t blkCnt;                               /* loop counter */
+        float32_t *pSrc,
+        uint32_t blockSize,
+        float32_t *pResult) {
+    float32_t sum = 0.0f;                          /* Temporary result storage */
+    uint32_t blkCnt;                               /* loop counter */
 
 
 
-  /* Loop over blockSize number of values */
-  blkCnt = blockSize;
+    /* Loop over blockSize number of values */
+    blkCnt = blockSize;
 
 
-  while (blkCnt > 0U)
-  {
-    /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) */
-    sum += *pSrc++;
+    while (blkCnt > 0U) {
+        /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) */
+        sum += *pSrc++;
 
-    /* Decrement the loop counter */
-    blkCnt--;
-  }
+        /* Decrement the loop counter */
+        blkCnt--;
+    }
 
-  /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) / blockSize  */
-  /* Store the result to the destination */
-  *pResult = sum / (float32_t) blockSize;
+    /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) / blockSize  */
+    /* Store the result to the destination */
+    *pResult = sum / (float32_t) blockSize;
 }
 
 /**

@@ -38,20 +38,18 @@
 #define sinPolyCoef9  2.600054768e-6f                                          // Double:  2.600054767890361277123254766503271638682e-6
 #endif
 
-float sin_approx(float x)
-{
+float sin_approx(float x) {
     int32_t xint = x;
     if (xint < -32 || xint > 32) return 0.0f;                               // Stop here on error input (5 * 360 Deg)
-    while (x >  M_PIf) x -= (2.0f * M_PIf);                                 // always wrap input angle to -PI..PI
+    while (x > M_PIf) x -= (2.0f * M_PIf);                                 // always wrap input angle to -PI..PI
     while (x < -M_PIf) x += (2.0f * M_PIf);
-    if (x >  (0.5f * M_PIf)) x =  (0.5f * M_PIf) - (x - (0.5f * M_PIf));   // We just pick -90..+90 Degree
+    if (x > (0.5f * M_PIf)) x = (0.5f * M_PIf) - (x - (0.5f * M_PIf));   // We just pick -90..+90 Degree
     else if (x < -(0.5f * M_PIf)) x = -(0.5f * M_PIf) - ((0.5f * M_PIf) + x);
     float x2 = x * x;
     return x + x * x2 * (sinPolyCoef3 + x2 * (sinPolyCoef5 + x2 * (sinPolyCoef7 + x2 * sinPolyCoef9)));
 }
 
-float cos_approx(float x)
-{
+float cos_approx(float x) {
     return sin_approx(x + (0.5f * M_PIf));
 }
 
@@ -59,23 +57,23 @@ float cos_approx(float x)
 // http://http.developer.nvidia.com/Cg/atan2.html (not working correctly!)
 // Poly coefficients by @ledvinap (https://github.com/cleanflight/cleanflight/pull/1107)
 // Max absolute error 0,000027 degree
-float atan2_approx(float y, float x)
-{
-    #define atanPolyCoef1  3.14551665884836e-07f
-    #define atanPolyCoef2  0.99997356613987f
-    #define atanPolyCoef3  0.14744007058297684f
-    #define atanPolyCoef4  0.3099814292351353f
-    #define atanPolyCoef5  0.05030176425872175f
-    #define atanPolyCoef6  0.1471039133652469f
-    #define atanPolyCoef7  0.6444640676891548f
+float atan2_approx(float y, float x) {
+#define atanPolyCoef1  3.14551665884836e-07f
+#define atanPolyCoef2  0.99997356613987f
+#define atanPolyCoef3  0.14744007058297684f
+#define atanPolyCoef4  0.3099814292351353f
+#define atanPolyCoef5  0.05030176425872175f
+#define atanPolyCoef6  0.1471039133652469f
+#define atanPolyCoef7  0.6444640676891548f
 
     float res, absX, absY;
     absX = fabsf(x);
     absY = fabsf(y);
-    res  = MAX(absX, absY);
+    res = MAX(absX, absY);
     if (res) res = MIN(absX, absY) / res;
     else res = 0.0f;
-    res = -((((atanPolyCoef5 * res - atanPolyCoef4) * res - atanPolyCoef3) * res - atanPolyCoef2) * res - atanPolyCoef1) / ((atanPolyCoef7 * res + atanPolyCoef6) * res + 1.0f);
+    res = -((((atanPolyCoef5 * res - atanPolyCoef4) * res - atanPolyCoef3) * res - atanPolyCoef2) * res -
+            atanPolyCoef1) / ((atanPolyCoef7 * res + atanPolyCoef6) * res + 1.0f);
     if (absY > absX) res = (M_PIf / 2.0f) - res;
     if (x < 0) res = M_PIf - res;
     if (y < 0) res = -res;
@@ -86,8 +84,7 @@ float atan2_approx(float y, float x)
 // Handbook of Mathematical Functions
 // M. Abramowitz and I.A. Stegun, Ed.
 // Absolute error <= 6.7e-5
-float acos_approx(float x)
-{
+float acos_approx(float x) {
     float xa = fabsf(x);
     float result = sqrtf(1.0f - xa) * (1.5707288f + xa * (-0.2121144f + xa * (0.0742610f + (-0.0187293f * xa))));
     if (x < 0.0f)
@@ -95,10 +92,10 @@ float acos_approx(float x)
     else
         return result;
 }
+
 #endif
 
-int gcd(int num, int denom)
-{
+int gcd(int num, int denom) {
     if (denom == 0) {
         return num;
     }
@@ -106,8 +103,7 @@ int gcd(int num, int denom)
     return gcd(denom, num % denom);
 }
 
-int32_t wrap_18000(int32_t angle)
-{
+int32_t wrap_18000(int32_t angle) {
     if (angle > 18000)
         angle -= 36000;
     if (angle < -18000)
@@ -115,8 +111,7 @@ int32_t wrap_18000(int32_t angle)
     return angle;
 }
 
-int32_t wrap_36000(int32_t angle)
-{
+int32_t wrap_36000(int32_t angle) {
     if (angle > 36000)
         angle -= 36000;
     if (angle < 0)
@@ -124,8 +119,7 @@ int32_t wrap_36000(int32_t angle)
     return angle;
 }
 
-int32_t applyDeadband(int32_t value, int32_t deadband)
-{
+int32_t applyDeadband(int32_t value, int32_t deadband) {
     if (ABS(value) < deadband) {
         value = 0;
     } else if (value > 0) {
@@ -136,8 +130,7 @@ int32_t applyDeadband(int32_t value, int32_t deadband)
     return value;
 }
 
-float applyDeadbandf(float value, float deadband)
-{
+float applyDeadbandf(float value, float deadband) {
     if (ABS(value) < deadband) {
         value = 0;
     } else if (value > 0) {
@@ -149,8 +142,7 @@ float applyDeadbandf(float value, float deadband)
 }
 
 
-int constrain(int amt, int low, int high)
-{
+int constrain(int amt, int low, int high) {
     if (amt < low)
         return low;
     else if (amt > high)
@@ -159,8 +151,7 @@ int constrain(int amt, int low, int high)
         return amt;
 }
 
-float constrainf(float amt, float low, float high)
-{
+float constrainf(float amt, float low, float high) {
     if (amt < low)
         return low;
     else if (amt > high)
@@ -169,13 +160,11 @@ float constrainf(float amt, float low, float high)
         return amt;
 }
 
-void devClear(stdev_t *dev)
-{
+void devClear(stdev_t *dev) {
     dev->m_n = 0;
 }
 
-void devPush(stdev_t *dev, float x)
-{
+void devPush(stdev_t *dev, float x) {
     dev->m_n++;
     if (dev->m_n == 1) {
         dev->m_oldM = dev->m_newM = x;
@@ -188,18 +177,15 @@ void devPush(stdev_t *dev, float x)
     }
 }
 
-float devVariance(stdev_t *dev)
-{
+float devVariance(stdev_t *dev) {
     return ((dev->m_n > 1) ? dev->m_newS / (dev->m_n - 1) : 0.0f);
 }
 
-float devStandardDeviation(stdev_t *dev)
-{
+float devStandardDeviation(stdev_t *dev) {
     return sqrtf(devVariance(dev));
 }
 
-float degreesToRadians(int16_t degrees)
-{
+float degreesToRadians(int16_t degrees) {
     return degrees * RAD;
 }
 
@@ -216,8 +202,7 @@ float scaleRangef(float x, float srcMin, float srcMax, float destMin, float dest
 }
 
 // Normalize a vector
-void normalizeV(struct fp_vector *src, struct fp_vector *dest)
-{
+void normalizeV(struct fp_vector *src, struct fp_vector *dest) {
     float length;
 
     length = sqrtf(src->X * src->X + src->Y * src->Y + src->Z * src->Z);
@@ -228,8 +213,7 @@ void normalizeV(struct fp_vector *src, struct fp_vector *dest)
     }
 }
 
-void buildRotationMatrix(fp_angles_t *delta, float matrix[3][3])
-{
+void buildRotationMatrix(fp_angles_t *delta, float matrix[3][3]) {
     float cosx, sinx, cosy, siny, cosz, sinz;
     float coszcosx, sinzcosx, coszsinx, sinzsinx;
 
@@ -257,8 +241,7 @@ void buildRotationMatrix(fp_angles_t *delta, float matrix[3][3])
 }
 
 // Rotate a vector *v by the euler angles defined by the 3-vector *delta.
-void rotateV(struct fp_vector *v, fp_angles_t *delta)
-{
+void rotateV(struct fp_vector *v, fp_angles_t *delta) {
     struct fp_vector v_tmp = *v;
 
     float matrix[3][3];
@@ -273,79 +256,104 @@ void rotateV(struct fp_vector *v, fp_angles_t *delta)
 // Quick median filter implementation
 // (c) N. Devillard - 1998
 // http://ndevilla.free.fr/median/median.pdf
-#define QMF_SORT(type,a,b) { if ((a)>(b)) QMF_SWAP(type, (a),(b)); }
-#define QMF_SWAP(type,a,b) { type temp=(a);(a)=(b);(b)=temp; }
+#define QMF_SORT(type, a, b) { if ((a)>(b)) QMF_SWAP(type, (a),(b)); }
+#define QMF_SWAP(type, a, b) { type temp=(a);(a)=(b);(b)=temp; }
 
-int32_t quickMedianFilter3(int32_t * v)
-{
+int32_t quickMedianFilter3(int32_t *v) {
     int32_t p[3];
     memcpy(p, v, sizeof(p));
 
-    QMF_SORT(int32_t, p[0], p[1]); QMF_SORT(int32_t, p[1], p[2]); QMF_SORT(int32_t, p[0], p[1]) ;
+    QMF_SORT(int32_t, p[0], p[1]);
+    QMF_SORT(int32_t, p[1], p[2]);
+    QMF_SORT(int32_t, p[0], p[1]);
     return p[1];
 }
 
-int16_t quickMedianFilter3_16(int16_t * v)
-{
+int16_t quickMedianFilter3_16(int16_t *v) {
     int16_t p[3];
     memcpy(p, v, sizeof(p));
 
-    QMF_SORT(int16_t, p[0], p[1]); QMF_SORT(int16_t, p[1], p[2]); QMF_SORT(int16_t, p[0], p[1]) ;
+    QMF_SORT(int16_t, p[0], p[1]);
+    QMF_SORT(int16_t, p[1], p[2]);
+    QMF_SORT(int16_t, p[0], p[1]);
     return p[1];
 }
 
-int32_t quickMedianFilter5(int32_t * v)
-{
+int32_t quickMedianFilter5(int32_t *v) {
     int32_t p[5];
     memcpy(p, v, sizeof(p));
 
-    QMF_SORT(int32_t, p[0], p[1]); QMF_SORT(int32_t, p[3], p[4]); QMF_SORT(int32_t, p[0], p[3]);
-    QMF_SORT(int32_t, p[1], p[4]); QMF_SORT(int32_t, p[1], p[2]); QMF_SORT(int32_t, p[2], p[3]);
+    QMF_SORT(int32_t, p[0], p[1]);
+    QMF_SORT(int32_t, p[3], p[4]);
+    QMF_SORT(int32_t, p[0], p[3]);
+    QMF_SORT(int32_t, p[1], p[4]);
+    QMF_SORT(int32_t, p[1], p[2]);
+    QMF_SORT(int32_t, p[2], p[3]);
     QMF_SORT(int32_t, p[1], p[2]);
     return p[2];
 }
 
-int16_t quickMedianFilter5_16(int16_t * v)
-{
+int16_t quickMedianFilter5_16(int16_t *v) {
     int16_t p[5];
     memcpy(p, v, sizeof(p));
 
-    QMF_SORT(int16_t, p[0], p[1]); QMF_SORT(int16_t, p[3], p[4]); QMF_SORT(int16_t, p[0], p[3]);
-    QMF_SORT(int16_t, p[1], p[4]); QMF_SORT(int16_t, p[1], p[2]); QMF_SORT(int16_t, p[2], p[3]);
+    QMF_SORT(int16_t, p[0], p[1]);
+    QMF_SORT(int16_t, p[3], p[4]);
+    QMF_SORT(int16_t, p[0], p[3]);
+    QMF_SORT(int16_t, p[1], p[4]);
+    QMF_SORT(int16_t, p[1], p[2]);
+    QMF_SORT(int16_t, p[2], p[3]);
     QMF_SORT(int16_t, p[1], p[2]);
     return p[2];
 }
 
-int32_t quickMedianFilter7(int32_t * v)
-{
+int32_t quickMedianFilter7(int32_t *v) {
     int32_t p[7];
     memcpy(p, v, sizeof(p));
 
-    QMF_SORT(int32_t, p[0], p[5]); QMF_SORT(int32_t, p[0], p[3]); QMF_SORT(int32_t, p[1], p[6]);
-    QMF_SORT(int32_t, p[2], p[4]); QMF_SORT(int32_t, p[0], p[1]); QMF_SORT(int32_t, p[3], p[5]);
-    QMF_SORT(int32_t, p[2], p[6]); QMF_SORT(int32_t, p[2], p[3]); QMF_SORT(int32_t, p[3], p[6]);
-    QMF_SORT(int32_t, p[4], p[5]); QMF_SORT(int32_t, p[1], p[4]); QMF_SORT(int32_t, p[1], p[3]);
+    QMF_SORT(int32_t, p[0], p[5]);
+    QMF_SORT(int32_t, p[0], p[3]);
+    QMF_SORT(int32_t, p[1], p[6]);
+    QMF_SORT(int32_t, p[2], p[4]);
+    QMF_SORT(int32_t, p[0], p[1]);
+    QMF_SORT(int32_t, p[3], p[5]);
+    QMF_SORT(int32_t, p[2], p[6]);
+    QMF_SORT(int32_t, p[2], p[3]);
+    QMF_SORT(int32_t, p[3], p[6]);
+    QMF_SORT(int32_t, p[4], p[5]);
+    QMF_SORT(int32_t, p[1], p[4]);
+    QMF_SORT(int32_t, p[1], p[3]);
     QMF_SORT(int32_t, p[3], p[4]);
     return p[3];
 }
 
-int32_t quickMedianFilter9(int32_t * v)
-{
+int32_t quickMedianFilter9(int32_t *v) {
     int32_t p[9];
     memcpy(p, v, sizeof(p));
 
-    QMF_SORT(int32_t, p[1], p[2]); QMF_SORT(int32_t, p[4], p[5]); QMF_SORT(int32_t, p[7], p[8]);
-    QMF_SORT(int32_t, p[0], p[1]); QMF_SORT(int32_t, p[3], p[4]); QMF_SORT(int32_t, p[6], p[7]);
-    QMF_SORT(int32_t, p[1], p[2]); QMF_SORT(int32_t, p[4], p[5]); QMF_SORT(int32_t, p[7], p[8]);
-    QMF_SORT(int32_t, p[0], p[3]); QMF_SORT(int32_t, p[5], p[8]); QMF_SORT(int32_t, p[4], p[7]);
-    QMF_SORT(int32_t, p[3], p[6]); QMF_SORT(int32_t, p[1], p[4]); QMF_SORT(int32_t, p[2], p[5]);
-    QMF_SORT(int32_t, p[4], p[7]); QMF_SORT(int32_t, p[4], p[2]); QMF_SORT(int32_t, p[6], p[4]);
+    QMF_SORT(int32_t, p[1], p[2]);
+    QMF_SORT(int32_t, p[4], p[5]);
+    QMF_SORT(int32_t, p[7], p[8]);
+    QMF_SORT(int32_t, p[0], p[1]);
+    QMF_SORT(int32_t, p[3], p[4]);
+    QMF_SORT(int32_t, p[6], p[7]);
+    QMF_SORT(int32_t, p[1], p[2]);
+    QMF_SORT(int32_t, p[4], p[5]);
+    QMF_SORT(int32_t, p[7], p[8]);
+    QMF_SORT(int32_t, p[0], p[3]);
+    QMF_SORT(int32_t, p[5], p[8]);
+    QMF_SORT(int32_t, p[4], p[7]);
+    QMF_SORT(int32_t, p[3], p[6]);
+    QMF_SORT(int32_t, p[1], p[4]);
+    QMF_SORT(int32_t, p[2], p[5]);
+    QMF_SORT(int32_t, p[4], p[7]);
+    QMF_SORT(int32_t, p[4], p[2]);
+    QMF_SORT(int32_t, p[6], p[4]);
     QMF_SORT(int32_t, p[4], p[2]);
     return p[4];
 }
 
-void arraySubInt32(int32_t *dest, int32_t *array1, int32_t *array2, int count)
-{
+void arraySubInt32(int32_t *dest, int32_t *array1, int32_t *array2, int count) {
     for (int i = 0; i < count; i++) {
         dest[i] = array1[i] - array2[i];
     }
@@ -356,10 +364,9 @@ void arraySubInt32(int32_t *dest, int32_t *array1, int32_t *array2, int count)
  * Initial implementation by @HaukeRa
  * Modified to be re-usable by @DigitalEntity
  */
-void sensorCalibrationResetState(sensorCalibrationState_t * state)
-{
-    for (int i = 0; i < 4; i++){
-        for (int j = 0; j < 4; j++){
+void sensorCalibrationResetState(sensorCalibrationState_t *state) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
             state->XtX[i][j] = 0;
         }
 
@@ -367,39 +374,39 @@ void sensorCalibrationResetState(sensorCalibrationState_t * state)
     }
 }
 
-void sensorCalibrationPushSampleForOffsetCalculation(sensorCalibrationState_t * state, int32_t sample[3])
-{
-    state->XtX[0][0] += (float)sample[0] * sample[0];
-    state->XtX[0][1] += (float)sample[0] * sample[1];
-    state->XtX[0][2] += (float)sample[0] * sample[2];
-    state->XtX[0][3] += (float)sample[0];
+void sensorCalibrationPushSampleForOffsetCalculation(sensorCalibrationState_t *state, int32_t sample[3]) {
+    state->XtX[0][0] += (float) sample[0] * sample[0];
+    state->XtX[0][1] += (float) sample[0] * sample[1];
+    state->XtX[0][2] += (float) sample[0] * sample[2];
+    state->XtX[0][3] += (float) sample[0];
 
-    state->XtX[1][0] += (float)sample[1] * sample[0];
-    state->XtX[1][1] += (float)sample[1] * sample[1];
-    state->XtX[1][2] += (float)sample[1] * sample[2];
-    state->XtX[1][3] += (float)sample[1];
+    state->XtX[1][0] += (float) sample[1] * sample[0];
+    state->XtX[1][1] += (float) sample[1] * sample[1];
+    state->XtX[1][2] += (float) sample[1] * sample[2];
+    state->XtX[1][3] += (float) sample[1];
 
-    state->XtX[2][0] += (float)sample[2] * sample[0];
-    state->XtX[2][1] += (float)sample[2] * sample[1];
-    state->XtX[2][2] += (float)sample[2] * sample[2];
-    state->XtX[2][3] += (float)sample[2];
+    state->XtX[2][0] += (float) sample[2] * sample[0];
+    state->XtX[2][1] += (float) sample[2] * sample[1];
+    state->XtX[2][2] += (float) sample[2] * sample[2];
+    state->XtX[2][3] += (float) sample[2];
 
-    state->XtX[3][0] += (float)sample[0];
-    state->XtX[3][1] += (float)sample[1];
-    state->XtX[3][2] += (float)sample[2];
+    state->XtX[3][0] += (float) sample[0];
+    state->XtX[3][1] += (float) sample[1];
+    state->XtX[3][2] += (float) sample[2];
     state->XtX[3][3] += 1;
 
-    float squareSum = ((float)sample[0] * sample[0]) + ((float)sample[1] * sample[1]) + ((float)sample[2] * sample[2]);
+    float squareSum =
+            ((float) sample[0] * sample[0]) + ((float) sample[1] * sample[1]) + ((float) sample[2] * sample[2]);
     state->XtY[0] += sample[0] * squareSum;
     state->XtY[1] += sample[1] * squareSum;
     state->XtY[2] += sample[2] * squareSum;
     state->XtY[3] += squareSum;
 }
 
-void sensorCalibrationPushSampleForScaleCalculation(sensorCalibrationState_t * state, int axis, int32_t sample[3], int target)
-{
+void sensorCalibrationPushSampleForScaleCalculation(sensorCalibrationState_t *state, int axis, int32_t sample[3],
+                                                    int target) {
     for (int i = 0; i < 3; i++) {
-        float scaledSample = (float)sample[i] / (float)target;
+        float scaledSample = (float) sample[i] / (float) target;
         state->XtX[axis][i] += scaledSample * scaledSample;
         state->XtX[3][i] += scaledSample * scaledSample;
     }
@@ -442,7 +449,7 @@ void sensorCalibration_ForwardSubstitution(float LR[4][4], float y[4], float b[4
 
 void sensorCalibration_BackwardSubstitution(float LR[4][4], float x[4], float y[4]) {
     int i, k;
-    for (i = 3 ; i >= 0; --i) {
+    for (i = 3; i >= 0; --i) {
         x[i] = y[i];
         for (k = i + 1; k < 4; ++k) {
             x[i] -= LR[i][k] * x[k];
@@ -467,8 +474,7 @@ static void sensorCalibration_SolveLGS(float A[4][4], float x[4], float b[4]) {
     sensorCalibration_BackwardSubstitution(A, x, y);
 }
 
-void sensorCalibrationSolveForOffset(sensorCalibrationState_t * state, float result[3])
-{
+void sensorCalibrationSolveForOffset(sensorCalibrationState_t *state, float result[3]) {
     float beta[4];
     sensorCalibration_SolveLGS(state->XtX, beta, state->XtY);
 
@@ -477,8 +483,7 @@ void sensorCalibrationSolveForOffset(sensorCalibrationState_t * state, float res
     }
 }
 
-void sensorCalibrationSolveForScale(sensorCalibrationState_t * state, float result[3])
-{
+void sensorCalibrationSolveForScale(sensorCalibrationState_t *state, float result[3]) {
     float beta[4];
     sensorCalibration_SolveLGS(state->XtX, beta, state->XtY);
 
@@ -487,7 +492,6 @@ void sensorCalibrationSolveForScale(sensorCalibrationState_t * state, float resu
     }
 }
 
-float bellCurve(const float x, const float curveWidth)
-{
+float bellCurve(const float x, const float curveWidth) {
     return powf(M_Ef, -sq(x) / (2.0f * sq(curveWidth)));
 }

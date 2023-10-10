@@ -64,102 +64,98 @@
  */
 
 xtensa_status xtensa_mat_mult_f32(
-  const xtensa_matrix_instance_f32 * pSrcA,
-  const xtensa_matrix_instance_f32 * pSrcB,
-  xtensa_matrix_instance_f32 * pDst)
-{
-  float32_t *pIn1 = pSrcA->pData;                /* input data matrix pointer A */
-  float32_t *pIn2 = pSrcB->pData;                /* input data matrix pointer B */
-  float32_t *pInA = pSrcA->pData;                /* input data matrix pointer A  */
-  float32_t *pOut = pDst->pData;                 /* output data matrix pointer */
-  float32_t *px;                                 /* Temporary output data matrix pointer */
-  float32_t sum;                                 /* Accumulator */
-  uint16_t numRowsA = pSrcA->numRows;            /* number of rows of input matrix A */
-  uint16_t numColsB = pSrcB->numCols;            /* number of columns of input matrix B */
-  uint16_t numColsA = pSrcA->numCols;            /* number of columns of input matrix A */
+        const xtensa_matrix_instance_f32 *pSrcA,
+        const xtensa_matrix_instance_f32 *pSrcB,
+        xtensa_matrix_instance_f32 *pDst) {
+    float32_t *pIn1 = pSrcA->pData;                /* input data matrix pointer A */
+    float32_t *pIn2 = pSrcB->pData;                /* input data matrix pointer B */
+    float32_t *pInA = pSrcA->pData;                /* input data matrix pointer A  */
+    float32_t *pOut = pDst->pData;                 /* output data matrix pointer */
+    float32_t *px;                                 /* Temporary output data matrix pointer */
+    float32_t sum;                                 /* Accumulator */
+    uint16_t numRowsA = pSrcA->numRows;            /* number of rows of input matrix A */
+    uint16_t numColsB = pSrcB->numCols;            /* number of columns of input matrix B */
+    uint16_t numColsA = pSrcA->numCols;            /* number of columns of input matrix A */
 
 
 
-  float32_t *pInB = pSrcB->pData;                /* input data matrix pointer B */
-  uint16_t col, i = 0U, row = numRowsA, colCnt;  /* loop counters */
-  xtensa_status status;                             /* status of matrix multiplication */
+    float32_t *pInB = pSrcB->pData;                /* input data matrix pointer B */
+    uint16_t col, i = 0U, row = numRowsA, colCnt;  /* loop counters */
+    xtensa_status status;                             /* status of matrix multiplication */
 
 #ifdef XTENSA_MATH_MATRIX_CHECK
 
-  /* Check for matrix mismatch condition */
-  if ((pSrcA->numCols != pSrcB->numRows) ||
-     (pSrcA->numRows != pDst->numRows) || (pSrcB->numCols != pDst->numCols))
-  {
+    /* Check for matrix mismatch condition */
+    if ((pSrcA->numCols != pSrcB->numRows) ||
+       (pSrcA->numRows != pDst->numRows) || (pSrcB->numCols != pDst->numCols))
+    {
 
-    /* Set status as XTENSA_MATH_SIZE_MISMATCH */
-    status = XTENSA_MATH_SIZE_MISMATCH;
-  }
-  else
+      /* Set status as XTENSA_MATH_SIZE_MISMATCH */
+      status = XTENSA_MATH_SIZE_MISMATCH;
+    }
+    else
 #endif /*      #ifdef XTENSA_MATH_MATRIX_CHECK    */
 
-  {
-    /* The following loop performs the dot-product of each row in pInA with each column in pInB */
-    /* row loop */
-    do
     {
-      /* Output pointer is set to starting address of the row being processed */
-      px = pOut + i;
+        /* The following loop performs the dot-product of each row in pInA with each column in pInB */
+        /* row loop */
+        do {
+            /* Output pointer is set to starting address of the row being processed */
+            px = pOut + i;
 
-      /* For every row wise process, the column loop counter is to be initiated */
-      col = numColsB;
+            /* For every row wise process, the column loop counter is to be initiated */
+            col = numColsB;
 
-      /* For every row wise process, the pIn2 pointer is set
-       ** to the starting address of the pSrcB data */
-      pIn2 = pSrcB->pData;
+            /* For every row wise process, the pIn2 pointer is set
+             ** to the starting address of the pSrcB data */
+            pIn2 = pSrcB->pData;
 
-      /* column loop */
-      do
-      {
-        /* Set the variable sum, that acts as accumulator, to zero */
-        sum = 0.0f;
+            /* column loop */
+            do {
+                /* Set the variable sum, that acts as accumulator, to zero */
+                sum = 0.0f;
 
-        /* Initialize the pointer pIn1 to point to the starting address of the row being processed */
-        pIn1 = pInA;
+                /* Initialize the pointer pIn1 to point to the starting address of the row being processed */
+                pIn1 = pInA;
 
-        /* Matrix A columns number of MAC operations are to be performed */
-        colCnt = numColsA;
+                /* Matrix A columns number of MAC operations are to be performed */
+                colCnt = numColsA;
 
-        while (colCnt > 0U)
-        {
-          /* c(m,n) = a(1,1)*b(1,1) + a(1,2) * b(2,1) + .... + a(m,p)*b(p,n) */
-          sum += *pIn1++ * (*pIn2);
-          pIn2 += numColsB;
+                while (colCnt > 0U) {
+                    /* c(m,n) = a(1,1)*b(1,1) + a(1,2) * b(2,1) + .... + a(m,p)*b(p,n) */
+                    sum += *pIn1++ * (*pIn2);
+                    pIn2 += numColsB;
 
-          /* Decrement the loop counter */
-          colCnt--;
-        }
+                    /* Decrement the loop counter */
+                    colCnt--;
+                }
 
-        /* Store the result in the destination buffer */
-        *px++ = sum;
+                /* Store the result in the destination buffer */
+                *px++ = sum;
 
-        /* Decrement the column loop counter */
-        col--;
+                /* Decrement the column loop counter */
+                col--;
 
-        /* Update the pointer pIn2 to point to the  starting address of the next column */
-        pIn2 = pInB + (numColsB - col);
+                /* Update the pointer pIn2 to point to the  starting address of the next column */
+                pIn2 = pInB + (numColsB - col);
 
-      } while (col > 0U);
+            } while (col > 0U);
 
 
-      /* Update the pointer pInA to point to the  starting address of the next row */
-      i = i + numColsB;
-      pInA = pInA + numColsA;
+            /* Update the pointer pInA to point to the  starting address of the next row */
+            i = i + numColsB;
+            pInA = pInA + numColsA;
 
-      /* Decrement the row loop counter */
-      row--;
+            /* Decrement the row loop counter */
+            row--;
 
-    } while (row > 0U);
-    /* Set status as XTENSA_MATH_SUCCESS */
-    status = XTENSA_MATH_SUCCESS;
-  }
+        } while (row > 0U);
+        /* Set status as XTENSA_MATH_SUCCESS */
+        status = XTENSA_MATH_SUCCESS;
+    }
 
-  /* Return to application */
-  return (status);
+    /* Return to application */
+    return (status);
 }
 
 /**

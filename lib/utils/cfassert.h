@@ -44,14 +44,17 @@
  * Assert handler function
  */
 void assertFail(char *exp, char *file, int line);
+
 /**
  * Print assert snapshot data
  */
 void printAssertSnapshotData();
+
 /**
  * Store assert snapshot data to be read at startup if a reset is triggered (watchdog)
  */
 void storeAssertFileData(const char *file, int line);
+
 /**
  * Store hardfault data to be read at startup if a reset is triggered (watchdog)
  * Line information can be printed using:
@@ -59,14 +62,14 @@ void storeAssertFileData(const char *file, int line);
  * gdb> info line *0x<PC>
  */
 void storeAssertHardfaultData(
-    unsigned int r0,
-    unsigned int r1,
-    unsigned int r2,
-    unsigned int r3,
-    unsigned int r12,
-    unsigned int lr,
-    unsigned int pc,
-    unsigned int psr);
+        unsigned int r0,
+        unsigned int r1,
+        unsigned int r2,
+        unsigned int r3,
+        unsigned int r12,
+        unsigned int lr,
+        unsigned int pc,
+        unsigned int psr);
 
 /**
  * Store assert data to be read at startup if a reset is triggered (watchdog)
