@@ -1,5 +1,3 @@
-#include "mpconfigboard.h"
-
 #include "commander.h"
 #include "i2cdev.h"
 #include "pm_esplane.h"
@@ -15,7 +13,7 @@ static bool is_init = 0;
 static uint16_t lastThrust;
 static ctrlVal_t wifiCtrl; /*发送到commander姿态控制数据*/
 
-static const char* TAG = "mpu6050_main";
+static const char *TAG = "main";
 
 static float limit(float value, float min, float max) {
     if (value > max) {
@@ -38,15 +36,15 @@ void drone_landing(void) {
 }
 
 void drone_take_off(void) {
-    setLandingDis(0);
+    setLandingDis(80.0f);
 
-    if (getCommanderKeyFlight() != true) {
+    if (getCommanderKeyFlight() != 1) {
         if (!isOffse) {
             attitude_t attitude;
             getAttitudeData(&attitude);
 
-            wifiCtrl.trimPitch = (attitude.pitch * 0.3);
-            wifiCtrl.trimRoll = (attitude.roll * 0.95);
+            wifiCtrl.trimPitch = (float) (attitude.pitch * 0.3);
+            wifiCtrl.trimRoll = (float) (attitude.roll * 0.95);
 
             isOffse = 1;
         }
@@ -60,28 +58,27 @@ void drone_trim(void) {
     float rol = (0) / 100.0f;
     float pit = (0) / 100.0f;
 
-    wifiCtrl.trimRoll += limit(rol, -10.0, 10.0);
-    wifiCtrl.trimPitch += limit(pit, -10.0, 10.0);
+    wifiCtrl.trimRoll += limit(rol, -10.0f, 10.0f);
+    wifiCtrl.trimPitch += limit(pit, -10.0f, 10.0f);
 }
 
 void drone_control(void) {
-    float fTemp = 0.0f;
-    fTemp = ((float)(0) / 10.0f);
+    float fTemp = ((float) (0) / 10.0f);
     wifiCtrl.roll = limit(fTemp, -10, 10);
 
     // wifiCtrl.roll += wifiCtrl.trimRoll;
 
-    fTemp = ((float)(0) / 10.0f);
+    fTemp = ((float) (0) / 10.0f);
     wifiCtrl.pitch = limit(fTemp, -10, 10);
 
     // wifiCtrl.pitch -= wifiCtrl.trimPitch;
 
-    fTemp = ((float)(0));
+    fTemp = ((float) (0));
     wifiCtrl.yaw = limit(fTemp, -200, 200);
 
-    fTemp = ((float)(100) / 2.0f);
+    fTemp = ((float) (100) / 2.0f);
     fTemp = limit(fTemp, 3, 100);
-    wifiCtrl.thrust = (uint16_t)(fTemp * 655.35f);
+    wifiCtrl.thrust = (uint16_t) (fTemp * 655.35f);
 
     if ((wifiCtrl.thrust == 32768) && lastThrust < 10000) { /*手动飞切换到定高*/
         setCommanderCtrlMode(1);
@@ -98,16 +95,16 @@ void drone_control(void) {
 void read_states(void) {
     attitude_t attitude;
     getAttitudeData(&attitude);
-    uint16_t bat = (uint16_t)(pmMeasureExtBatteryVoltage() * 100.0f);
-    int32_t FusedHeight = (int32_t)(getFusedHeight());
+    uint16_t bat = (uint16_t) (pmMeasureExtBatteryVoltage() * 100.0f);
+    int32_t FusedHeight = (int32_t) (getFusedHeight());
     int32_t tuple[9];
-    tuple[0] = attitude.roll * 100;
-    tuple[1] = attitude.pitch * 100;
-    tuple[2] = attitude.yaw * 100;
-    tuple[3] = wifiCtrl.roll * 100;
-    tuple[4] = wifiCtrl.pitch * 100;
-    tuple[5] = wifiCtrl.yaw * 100;
-    tuple[6] = ((wifiCtrl.thrust / 655.35) + 0.5);
+    tuple[0] = (int32_t) attitude.roll * 100;
+    tuple[1] = (int32_t) attitude.pitch * 100;
+    tuple[2] = (int32_t) attitude.yaw * 100;
+    tuple[3] = (int32_t) wifiCtrl.roll * 100;
+    tuple[4] = (int32_t) wifiCtrl.pitch * 100;
+    tuple[5] = (int32_t) wifiCtrl.yaw * 100;
+    tuple[6] = (int32_t) ((wifiCtrl.thrust / 655.35) + 0.5);
     tuple[7] = bat;
     tuple[8] = FusedHeight;
 }
@@ -133,28 +130,31 @@ void read_compass(void) {
     tuple[2] = mag.z;
 }
 
+bool read_calibrated(void) {
+    return sensorsAreCalibrated();
+}
 
 void read_air_pressure(void) {
     float temp, press, asl;
-    int16_t tuple[2];
+    int32_t tuple[2];
     getPressureRawData(&temp, &press, &asl);
 
-    tuple[0] = press * 100;
-    tuple[1] = (int16_t)(temp * 100);
+    tuple[0] = (int32_t) press * 100;
+    tuple[1] = (int32_t) (temp * 100);
 }
 
 void read_cal_data(void) {
     Axis3f variance;
-    int16_t tuple[3];
+    int32_t tuple[3];
     readBiasVlue(&variance);
 
-    tuple[0] = variance.x;
-    tuple[1] = variance.y;
-    tuple[2] = variance.z;
+    tuple[0] = (int32_t) variance.x;
+    tuple[1] = (int32_t) variance.y;
+    tuple[2] = (int32_t) variance.z;
 }
 
 static void InitDrone(void) {
-    static uint16_t lastThrust;
+//    static uint16_t lastThrust;
 
     if (is_init)
         return;
@@ -187,7 +187,7 @@ void drone_make_new() {
         setCommanderFlightmode(1);
     }
 
-    setPrintf(false);
+    setPrintf(0);
 
     InitDrone();
 
@@ -204,6 +204,13 @@ void app_main() {
 
     // init
     drone_make_new();
+    while (true) {
+        if (read_calibrated()) {
+            break;
+        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+
     ESP_LOGI(TAG, "init ok\n");
 
     ESP_LOGI(TAG, "take off\n");
