@@ -1,163 +1,239 @@
-#include "hmc5883l.h"
+#include "commander.h"
 #include "i2cdev.h"
-#include "ledseq.h"
-#include "motors.h"
-#include "mpu6050.h"
 #include "pm_esplane.h"
-#include "spl06.h"
+#include "sensors_mpu6050_spl06.h"
+#include "stabilizer.h"
+#include "state_estimator.h"
 #include "system_int.h"
 
 #include "esp_log.h"
 
-static const char* TAG = "mpu6050_main";
+static bool isOffse = 0;
+static bool is_init = 0;
+static uint16_t lastThrust;
+static ctrlVal_t wifiCtrl; /*发送到commander姿态控制数据*/
 
-void test() {
-  // 初始化日志系统
-  esp_log_level_set(TAG, ESP_LOG_INFO);
+static const char* TAG = "main";
 
-  motorsInit(15000);
-  motorsTest();
-
-  pmInit();
-
-  ledseqInit();
-  ledseqTest();
-
-  i2cdevInit(I2C0_DEV);
-  mpu6050Init(I2C0_DEV);
-
-  mpu6050Reset();
-  vTaskDelay(50 / portTICK_PERIOD_MS);
-  // Activate mpu6050
-  mpu6050SetSleepEnabled(false);
-  // Delay until registers are reset
-  vTaskDelay(100 / portTICK_PERIOD_MS);
-  // Set x-axis gyro as clock source
-  mpu6050SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
-  // Delay until clock is set and stable
-  vTaskDelay(200 / portTICK_PERIOD_MS);
-  // 使温度传感器
-  mpu6050SetTempSensorEnabled(true);
-  // 禁止中断
-  mpu6050SetIntEnabled(false);
-  // 将MAG和BARO连接到主I2C总线
-  mpu6050SetI2CBypassEnabled(true);
-  // 设置陀螺满量程
-  mpu6050SetFullScaleGyroRange(0x30);
-  // 设置加速度计满量程
-  mpu6050SetFullScaleAccelRange(0x30);
-
-  // Set digital low-pass bandwidth for gyro and acc
-  // board ESP32_S2_DRONE_V1_2 has more vibrations, bandwidth should be lower
-
-  // To low DLPF bandwidth might cause instability and decrease agility
-  // but it works well for handling vibrations and unbalanced propellers
-  // Set output rate (1): 1000 / (1 + 0) = 1000Hz
-  mpu6050SetRate(0);
-  mpu6050SetDLPFMode(MPU6050_DLPF_BW_42);
-
-  motorsSetRatio(0, 10000);
-  vTaskDelay(100 / portTICK_PERIOD_MS);
-  motorsSetRatio(0, 0);
-
-  hmc5883lInit(I2C0_DEV);
-  if (hmc5883lTestConnection() == true) {
-    hmc5883lSetMode(QMC5883L_MODE_CONTINUOUS);  // 16bit 100Hz
-    ESP_LOGI(TAG, "hmc5883l I2C connection [OK].\n");
+static float limit(float value, float min, float max) {
+  if (value > max) {
+    value = max;
+  } else if (value < min) {
+    value = min;
   }
+  return value;
+}
 
-  if (SPL06Init(I2C0_DEV)) {
-    ESP_LOGI(TAG, "SPL06 I2C connection [OK].\n");
-  }
+void drone_stop(void) {
+  setCommanderEmerStop(true);
+  setCommanderKeyFlight(false);
+  setCommanderKeyland(false);
+}
 
-  int16_t axi16, ayi16, azi16;
-  int16_t gxi16, gyi16, gzi16;
-  float axf, ayf, azf;
-  float gxf, gyf, gzf;
-  float gRange, aRange;
-  uint32_t scrap;
+void drone_landing(void) {
+  setCommanderKeyFlight(false);
+  setCommanderKeyland(true);
+}
 
-  aRange = mpu6050GetFullScaleAccelGPL();
-  gRange = mpu6050GetFullScaleGyroDPL();
+void drone_take_off(void) {
+  setLandingDis(80.0f);
 
-  // First values after startup can be read as zero. Scrap a couple to be sure.
-  for (scrap = 0; scrap < 10000; scrap++) {
-    mpu6050GetMotion6(&axi16, &ayi16, &azi16, &gxi16, &gyi16, &gzi16);
-    // First measurement
-    gxf = gxi16 * gRange;
-    gyf = gyi16 * gRange;
-    gzf = gzi16 * gRange;
-    axf = axi16 * aRange;
-    ayf = ayi16 * aRange;
-    azf = azi16 * aRange;
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    // 打印浮点数值
-    ESP_LOGI(TAG,
-             "Iteration %u: axi16 = %d, ayi16 = %d, azi16 = %d, gxi16 = %d, "
-             "gyi16 = %d, gzi16 = %d",
-             (unsigned int)scrap, axi16, ayi16, azi16, gxi16, gyi16, gzi16);
-    ESP_LOGI(TAG,
-             "Iteration %u: axf = %f, ayf = %f, azf = %f, gxf = %f, gyf = %f, "
-             "gzf = %f",
-             (unsigned int)scrap, axf, ayf, azf, gxf, gyf, gzf);
-    if (ayi16 < 0) {
-      ayi16 = -ayi16;
+  if (getCommanderKeyFlight() != 1) {
+    if (!isOffse) {
+      attitude_t attitude;
+      getAttitudeData(&attitude);
+
+      wifiCtrl.trimPitch = (float)(attitude.pitch * 0.3);
+      wifiCtrl.trimRoll = (float)(attitude.roll * 0.95);
+
+      isOffse = 1;
     }
-    if (axi16 < 0) {
-      axi16 = -axi16;
-    }
-    // if(azi16<0){ azi16=-azi16;}
-    motorsSetRatio(0, ayi16);
-    motorsSetRatio(1, axi16);
-    // motorsSetRatio(2, azi16);
+    setCommanderCtrlMode(1);
+    setCommanderKeyFlight(true);
+    setCommanderKeyland(false);
   }
-  motorsSetRatio(0, 0);
+}
+
+void drone_trim(void) {
+  float rol = (0) / 100.0f;
+  float pit = (0) / 100.0f;
+
+  wifiCtrl.trimRoll += limit(rol, -10.0f, 10.0f);
+  wifiCtrl.trimPitch += limit(pit, -10.0f, 10.0f);
+}
+
+void drone_control(void) {
+  float fTemp = ((float)(0) / 10.0f);
+  wifiCtrl.roll = limit(fTemp, -10, 10);
+
+  // wifiCtrl.roll += wifiCtrl.trimRoll;
+
+  fTemp = ((float)(0) / 10.0f);
+  wifiCtrl.pitch = limit(fTemp, -10, 10);
+
+  // wifiCtrl.pitch -= wifiCtrl.trimPitch;
+
+  fTemp = ((float)(0));
+  wifiCtrl.yaw = limit(fTemp, -200, 200);
+
+  fTemp = ((float)(100) / 2.0f);
+  fTemp = limit(fTemp, 3, 100);
+  wifiCtrl.thrust = (uint16_t)(fTemp * 655.35f);
+
+  if ((wifiCtrl.thrust == 32768) && lastThrust < 10000) { /*手动飞切换到定高*/
+    setCommanderCtrlMode(1);
+    setCommanderKeyFlight(false);
+    setCommanderKeyland(false);
+  } else if (wifiCtrl.thrust == 0 && lastThrust > 256) { /*定高切换成手动飞*/
+    setCommanderCtrlMode(0);
+    wifiCtrl.thrust = 0;
+  }
+  lastThrust = wifiCtrl.thrust;
+  flightCtrldataCache(WIFI, wifiCtrl);
+}
+
+void read_states(void) {
+  attitude_t attitude;
+  getAttitudeData(&attitude);
+  uint16_t bat = (uint16_t)(pmMeasureExtBatteryVoltage() * 100.0f);
+  int32_t FusedHeight = (int32_t)(getFusedHeight());
+  int32_t tuple[9];
+  tuple[0] = (int32_t)attitude.roll * 100;
+  tuple[1] = (int32_t)attitude.pitch * 100;
+  tuple[2] = (int32_t)attitude.yaw * 100;
+  tuple[3] = (int32_t)wifiCtrl.roll * 100;
+  tuple[4] = (int32_t)wifiCtrl.pitch * 100;
+  tuple[5] = (int32_t)wifiCtrl.yaw * 100;
+  tuple[6] = (int32_t)((wifiCtrl.thrust / 655.35) + 0.5);
+  tuple[7] = bat;
+  tuple[8] = FusedHeight;
+}
+
+void read_accelerometer(void) {
+  Axis3i16 acc, gyro, mag;
+  getSensorRawData(&acc, &gyro, &mag);
+  int32_t tuple[6];
+  tuple[0] = gyro.y;
+  tuple[1] = gyro.z;
+  tuple[2] = gyro.z;
+  tuple[3] = acc.y;
+  tuple[4] = acc.x;
+  tuple[5] = acc.z;
+}
+
+void read_compass(void) {
+  Axis3i16 acc, gyro, mag;
+  int32_t tuple[3];
+  getSensorRawData(&acc, &gyro, &mag);
+  tuple[0] = mag.x;
+  tuple[1] = mag.y;
+  tuple[2] = mag.z;
+}
+
+bool read_calibrated(void) {
+  return sensorsAreCalibrated();
+}
+
+void read_air_pressure(void) {
+  float temp, press, asl;
+  int32_t tuple[2];
+  getPressureRawData(&temp, &press, &asl);
+
+  tuple[0] = (int32_t)press * 100;
+  tuple[1] = (int32_t)(temp * 100);
+}
+
+void read_cal_data(void) {
+  Axis3f variance;
+  int32_t tuple[3];
+  readBiasVlue(&variance);
+
+  tuple[0] = (int32_t)variance.x;
+  tuple[1] = (int32_t)variance.y;
+  tuple[2] = (int32_t)variance.z;
+  ESP_LOGI(TAG, "read_cal_data x = %ld y = %ld z = %ld", tuple[0], tuple[1],
+           tuple[2]);
+}
+
+static void InitDrone(void) {
+  //    static uint16_t lastThrust;
+
+  if (is_init)
+    return;
+  systemInit();
+
+  wifiCtrl.roll = 0;       /*roll: ±9.5 ±19.2 ±31.7*/
+  wifiCtrl.pitch = 0;      /*pitch:±9.5 ±19.2 ±31.7*/
+  wifiCtrl.yaw = 0;        /*yaw : ±203.2*/
+  wifiCtrl.thrust = 32768; /*thrust :0~63356*/
+
+  if (wifiCtrl.thrust == 32768 && lastThrust < 10000) /*手动飞切换到定高*/
+  {
+    setCommanderCtrlMode(1);
+    setCommanderKeyFlight(false);
+    setCommanderKeyland(false);
+  } else if (wifiCtrl.thrust == 0 && lastThrust > 256) /*定高切换成手动飞*/
+  {
+    setCommanderCtrlMode(0);
+    wifiCtrl.thrust = 0;
+  }
+  lastThrust = wifiCtrl.thrust;
+
+  flightCtrldataCache(WIFI, wifiCtrl);
+}
+
+void drone_make_new() {
+  if (0 == 1) {
+    setCommanderFlightmode(0);
+  } else {
+    setCommanderFlightmode(1);
+  }
+
+  setPrintf(0);
+
+  InitDrone();
+
+  // drone_obj_t *drone_type;
+  // drone_type = m_new_obj(drone_obj_t);
+  // drone_type->base.type = &drone_drone_type;
+  is_init = true;
 }
 
 void app_main() {
-  systemInit();
-  motorsTest();
-  ESP_LOGI(TAG, "systemInit [OK].\n");
+  // systemInit();
+  // motorsTest();
+  // ESP_LOGI(TAG, "systemInit [OK].\n");
+  vTaskDelay(4000 / portTICK_PERIOD_MS);
 
-  int16_t axi16, ayi16, azi16;
-  int16_t gxi16, gyi16, gzi16;
-  float axf, ayf, azf;
-  float gxf, gyf, gzf;
-  float gRange, aRange;
-  uint32_t scrap;
-
-  aRange = mpu6050GetFullScaleAccelGPL();
-  gRange = mpu6050GetFullScaleGyroDPL();
-
-  for (scrap = 0; scrap < 10000; scrap++) {
-    mpu6050GetMotion6(&axi16, &ayi16, &azi16, &gxi16, &gyi16, &gzi16);
-    // First measurement
-    gxf = gxi16 * gRange;
-    gyf = gyi16 * gRange;
-    gzf = gzi16 * gRange;
-    axf = axi16 * aRange;
-    ayf = ayi16 * aRange;
-    azf = azi16 * aRange;
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    // 打印浮点数值
-    ESP_LOGI(TAG,
-             "Iteration %u: axi16 = %d, ayi16 = %d, azi16 = %d, gxi16 = %d, "
-             "gyi16 = %d, gzi16 = %d",
-             (unsigned int)scrap, axi16, ayi16, azi16, gxi16, gyi16, gzi16);
-    ESP_LOGI(TAG,
-             "Iteration %u: axf = %f, ayf = %f, azf = %f, gxf = %f, gyf = %f, "
-             "gzf = %f",
-             (unsigned int)scrap, axf, ayf, azf, gxf, gyf, gzf);
-    if (ayi16 < 0) {
-      ayi16 = -ayi16;
+  // init
+  drone_make_new();
+  while (true) {
+    read_cal_data();
+    if (read_calibrated()) {
+      read_cal_data();
+      break;
     }
-    if (axi16 < 0) {
-      axi16 = -axi16;
-    }
-    // if(azi16<0){ azi16=-azi16;}
-    motorsSetRatio(0, ayi16);
-    motorsSetRatio(1, axi16);
-    // motorsSetRatio(2, azi16);
+    vTaskDelay(300 / portTICK_PERIOD_MS);
   }
-  motorsSetRatio(0, 0);
+
+  ESP_LOGI(TAG, "init ok\n");
+
+  ESP_LOGI(TAG, "take off\n");
+
+  vTaskDelay(15000 / portTICK_PERIOD_MS);
+
+  // take off
+  drone_take_off();
+
+  // controll
+  // drone_control();
+
+  vTaskDelay(3000 / portTICK_PERIOD_MS);  // 飞行3秒
+  // vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+  ESP_LOGI(TAG, "stop\n");
+  // 停止并且降落
+  drone_stop();
+
+  ESP_LOGI(TAG, "fly ok\n");
 }
